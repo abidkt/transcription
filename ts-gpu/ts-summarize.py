@@ -101,12 +101,12 @@ if response is not None and response.status_code == 200:
     with open(os.path.join(folder_path, 'summary.json'), 'w', encoding='utf-8') as summary_file:
         summary_file.write(json_data.text)
 
-    payload = {"filename": folder_path}
-    headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
-    f = open(os.path.join(app.config['UPLOAD_FOLDER'], 'data', filenameJson))
-    data = json.load(f)
-    return jsonify(data), 400
-    requests.post(data.returnUrl, json=payload, headers=headers)
+#     payload = {"filename": folder_path}
+#     headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+#     f = open(os.path.join(app.config['UPLOAD_FOLDER'], 'data', filenameJson))
+#     requests.post(data.returnUrl, json=payload, headers=headers)
+#     data = json.load(f)
+#     return jsonify(data), 400
 
 else:
     if response is not None:

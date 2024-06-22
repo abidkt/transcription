@@ -52,9 +52,8 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Starting services with docker-compose..."
     docker-compose up --detach
 
-#Uncomment to enable ts-gpu local ollama container running mistral
-   # Get the model installed on ts-gpt (requires curl)
-   # only if ollama is enabled in docker-compose.yaml
+    # Get the model installed on ts-gpt (requires curl)
+    # only if ollama is enabled in docker-compose.yaml
     echo "Downloading llama3 model"
     curl -X POST http://172.30.1.3:11434/api/pull -d '{"name": "llama3"}'
 
