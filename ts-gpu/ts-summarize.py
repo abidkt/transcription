@@ -10,10 +10,6 @@ if len(sys.argv) < 3:
     print("Please provide a folder path and an API base URL as command line arguments.")
     sys.exit(1)
 
-UPLOAD_FOLDER = '/transcriptionstream/incoming'
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 folder_path = sys.argv[1]
 api_base_url = sys.argv[2]
 
