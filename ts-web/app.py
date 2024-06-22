@@ -25,6 +25,7 @@ UPLOAD_FOLDER = '/transcriptionstream/incoming'
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'flac'])
 MIME_TYPES = dict({
     "audio/mpeg": "mp3",
+    "binary/octet-stream": "mp3",
     "audio/wav": "wav"
 })
 
