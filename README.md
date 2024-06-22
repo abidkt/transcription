@@ -6,10 +6,7 @@ Created by [https://transcription.stream](https://transcription.stream) with spe
 Transcription Stream is a turnkey self-hosted diarization service that works completely offline. Out of the box it includes:
 - drag and drop diarization and transcription via SSH
 - a web interface for upload, review, and download of files
-- summarization with Ollama and Mistral
-- Meilisearch for full text search 
-
-A web interface and SSH drop zones make this simple to use and implement into your workflows. Ollama allows for a powerful toolset, limited only by your prompt skills, to perform complex operations on your transcriptions. Meiliesearch adds ridiculously fast full text search.
+- summarization with Ollama and llama3
 
 Use the web interface to upload, listen to, review, and download output files, or drop files via SSH into `transcribe` or `diarize`. Files are processed with output placed into a named and dated folder. Have a quick look at the <a href="https://www.youtube.com/watch?v=3RufeOjnlcE">install</a> and <a href="https://www.youtube.com/watch?v=pbZ8o7_MjG4">ts-web walkthrough</a> videos for a better idea.
 
@@ -80,7 +77,6 @@ chmod +x run.sh;
 - **SSH:** 22222
 - **HTTP:** 5006
 - **Ollama:** 11434
-- **Meilisearch:** 7700
 
 ### SSH Server Access
 - **Port:** 22222
@@ -100,10 +96,6 @@ chmod +x run.sh;
 - **URL:** [http://dockerip:11434](http://dockerip:11434)
 - change the prompt used, in `/ts-gpu/ts-summarize.py`
 
-### Meilisearch api
-- **URL:** [http://dockerip:7700](http://dockerip:7700)
-
-
 > **Warning:** This is example code for example purposes and should not be used in production environments without additional security measures.
 
 ### Customization and Troubleshooting
@@ -113,7 +105,4 @@ chmod +x run.sh;
 - Update the secret in .env for ts-web
 - Use .env to choose which models are included in the initial build.
 - Change the prompt text in ts-gpu/ts-summarize.py to fit your needs. Update ts-web/templates/transcription.html if you want to call it something other than summary.
-- 12GB of vram may not be enough to run both whisper-diarization and ollama mistral. Whisper-diarization is fairly light on gpu memory out of the box, but Ollama's runner holds enough gpu memory open causing the diarization/transcription to run our of CUDA memory on occasion. Since I can't run both on the same host reliably, I've set the batch size for both whisper-diarization and whisperx to 16, from their default 8, and let a m series mac run the Ollama endpoint. 
-### To-do
-- Need to fix an issue with ts-web that throws an error to console when loading a transcription when a summary.txt file does not also exist. Lots of other annoyances with ts-web, but it's functional.
-- Need to add a search/control interface to ts-web for Meilisearch
+- 12GB of vram may not be enough to run both whisper-diarization and ollama mistral. Whisper-diarization is fairly light on gpu memory out of the box, but Ollama's runner holds enough gpu memory open causing the diarization/transcription to run our of CUDA memory on occasion. Since I can't run both on the same host reliably, I've set the batch size for both whisper-diarization and whisperx to 16, from their default 8, and let a m series mac run the Ollama endpoint.

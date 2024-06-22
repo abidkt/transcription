@@ -1,1 +1,4 @@
 .DS_Store
+transcriptionstream
+.idea
+ts-web/__pycache__

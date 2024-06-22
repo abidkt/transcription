@@ -1,12 +1,14 @@
 import time
+import os
+import shutil
+import requests
+import json
 from flask import Flask, render_template, request, jsonify, session, send_file
 from werkzeug.utils import secure_filename
 from flask_http_middleware import MiddlewareManager
 from middleware import AccessMiddleware, MetricsMiddleware, SecureRoutersMiddleware
-import os
-import shutil
+from marshmallow import Schema, fields, ValidationError
 from datetime import datetime
-import requests
 
 app = Flask(__name__)
 
@@ -21,6 +23,10 @@ app.secret_key = os.environ.get('TS_WEB_SECRET_KEY', 'some_secret_key')
 TRANSCRIBED_FOLDER = '/transcriptionstream/transcribed'
 UPLOAD_FOLDER = '/transcriptionstream/incoming'
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'flac'])
+MIME_TYPES = dict({
+    "audio/mpeg": "mp3",
+    "audio/wav": "wav"
+})
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -28,6 +34,12 @@ session_start_time = datetime.now()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_extension(content_type):
+    for key, val in MIME_TYPES.items():
+        if key == content_type:
+            return val
+    return False
 
 @app.route('/')
 def index():
@@ -45,8 +57,40 @@ def index():
             valid_folders.append(os.path.basename(folder))
     
     sorted_folders = sorted(valid_folders, key=lambda s: s.lower())  # Sorting by name in ascending order, case-insensitive
-    #return jsonify({"transcriptions": sorted_folders})
-    return render_template('index.html', folders=sorted_folders)
+    return jsonify({"transcriptions": sorted_folders})
+
+class AudioSchema(Schema):
+    fileUrl = fields.String(required=True)
+    audioId = fields.Integer(required=True)
+    rowId = fields.Integer(required=True)
+
+@app.route('/upload_audio', methods=['POST'])
+def upload_audio():
+    request_data = request.json
+    schema = AudioSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(success=False, errors=err.messages), 400
+
+    headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+    response = requests.get(request_data['fileUrl'], headers=headers, verify=False)
+    if response.status_code == requests.codes.ok:
+        contentType = response.headers.get('content-type')
+        extension = get_extension(contentType)
+        if (extension == False):
+            raise Exception('Invalid extension')
+
+        filename = secure_filename(str(request_data['rowId']) + '-' + str(request_data['audioId']) + '.' + extension)
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], 'diarize', filename), mode="wb") as file:
+            file.write(response.content)
+
+        filenameJson = secure_filename(str(request_data['rowId']) + '-' + str(request_data['audioId']) + '.json')
+        with open(os.path.join(app.config['UPLOAD_FOLDER'], 'data', filenameJson), mode="w") as file:
+            json.dump(request_data, file)
+    else:
+        return jsonify(success=False, error=file.text), 400
+    return jsonify(success=True, message="File saved successfully"), 200
 
 @app.route('/load_files', methods=['POST'])
 def load_files():

@@ -15,10 +15,10 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
     echo "Starting services with docker-compose..."
     docker-compose up --detach
 
-# If running ts-gpt ollama container, enable this
-#    # Get the model installed on ts-gpt (requires curl)
+    # If running ts-gpt ollama container, enable this
+    #    # Get the model installed on ts-gpt (requires curl)
     echo "Downloading  mistral model"
-    curl -X POST http://localhost:11434/api/pull -d '{"name": "transcriptionstream/transcriptionstream"}'
+    curl -X POST http://localhost:11434/api/pull -d '{"name": "llama3"}'
 
     # Re-attach to compose logs
     echo "Re-attaching to console logs"

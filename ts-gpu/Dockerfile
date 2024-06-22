@@ -35,9 +35,6 @@ RUN git clone --depth 1 https://github.com/transcriptionstream/whisper-diarizati
 WORKDIR /whisper-diarization
 RUN pip install -r requirements.txt
 
-# Install req for calls to ts-meilisearch
-RUN pip install meilisearch
-
 # Copy the required files
 COPY ts-control.sh /root/scripts/
 COPY transcribe_example_d.sh /root/scripts/transcribe_example.sh
@@ -52,6 +49,7 @@ RUN useradd -m -p $(openssl passwd -1 nomoresaastax) transcriptionstream \
  && mkdir -p /home/transcriptionstream/transcribed \
  && mkdir -p /home/transcriptionstream/incoming/diarize \
  && mkdir -p /home/transcriptionstream/incoming/transcribe \
+ && mkdir -p /home/transcriptionstream/incoming/data \
  && chown -R transcriptionstream:transcriptionstream /home/transcriptionstream/ \
  && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 

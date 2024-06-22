@@ -10,6 +10,10 @@ if len(sys.argv) < 3:
     print("Please provide a folder path and an API base URL as command line arguments.")
     sys.exit(1)
 
+UPLOAD_FOLDER = '/transcriptionstream/incoming'
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 folder_path = sys.argv[1]
 api_base_url = sys.argv[2]
 
@@ -49,9 +53,10 @@ The transcription is as follows
 """
 # JSON payload
 payload = {
-    "model": "transcriptionstream/transcriptionstream",
+    "model": "llama3",
     "prompt": prompt_text,
     "stream": False,
+    "format": "json",
     "keep_alive": "5s"
 }
 
@@ -87,18 +92,21 @@ if response is not None and response.status_code == 200:
     # Parse the JSON response
     json_data = response.json()
     # Extract the 'response' portion
-    response_text = json_data.get('response', 'No response found')
+    # response_text = json_data.get('response', 'No response found')
     # Print the formatted response text
     ## we don't really need this
     ##print(response_text)
 
     # Write the summary to a file named summary.txt in the same folder
-    with open(os.path.join(folder_path, 'summary.txt'), 'w', encoding='utf-8') as summary_file:
-        summary_file.write(response_text)
+    with open(os.path.join(folder_path, 'summary.json'), 'w', encoding='utf-8') as summary_file:
+        summary_file.write(json_data.text)
 
-    # After writing the summary, call index-single.py so the info is indexed with MeiliSearch
-    index_single_script = '/root/scripts/index-single.py'
-    subprocess.run(['python3', index_single_script, folder_path])
+    payload = {"filename": folder_path}
+    headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+    f = open(os.path.join(app.config['UPLOAD_FOLDER'], 'data', filenameJson))
+    data = json.load(f)
+    return jsonify(data), 400
+    requests.post(data.returnUrl, json=payload, headers=headers)
 
 else:
     if response is not None:
