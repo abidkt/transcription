@@ -19,8 +19,8 @@ RUN apt-get update && apt-get install -y \
     cython3 \
     git \
     python3-wheel \
-    nvidia-cuda-toolkit \
-    nvidia-cuda-toolkit-gcc \
+#    nvidia-cuda-toolkit \
+#    nvidia-cuda-toolkit-gcc \
     tzdata \
  && rm -rf /var/lib/apt/lists/*
 
