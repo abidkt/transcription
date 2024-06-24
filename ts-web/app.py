@@ -20,8 +20,8 @@ app.wsgi_app.add_middleware(MetricsMiddleware)
 # Use the TS_WEB_SECRET_KEY environment variable as the secret key, and the fallback
 app.secret_key = os.environ.get('TS_WEB_SECRET_KEY', 'some_secret_key')
 
-TRANSCRIBED_FOLDER = 'transcriptionstream/transcribed'
-UPLOAD_FOLDER = 'transcriptionstream/incoming'
+TRANSCRIBED_FOLDER = '/transcriptionstream/transcribed'
+UPLOAD_FOLDER = '/transcriptionstream/incoming'
 ALLOWED_EXTENSIONS = set(['mp3', 'wav', 'ogg', 'flac'])
 MIME_TYPES = dict({
     "audio/mpeg": "mp3",
