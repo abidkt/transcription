@@ -5,6 +5,7 @@ version: '3.8'
 services:
   init:
     image: busybox
+    container_name: file-system
     volumes:
       - transcriptionstream:/transcriptionstream
     command: /bin/sh -c "mkdir -p /transcriptionstream/incoming/transcribe /transcriptionstream/incoming/diarize /transcriptionstream/incoming/data /transcriptionstream/transcribed /transcriptionstream/scripts && chown -R transcriptionstream:transcriptionstream /transcriptionstream/incoming"
