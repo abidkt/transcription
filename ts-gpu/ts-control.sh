@@ -1,12 +1,12 @@
 #!/bin/bash
-# Process control example with different limits for multiple processes
-#  by changing the maximum concurrent runs value, you can increase/decrease
-#  the maximum running processes per. Default 1.
+# Process control with different limits for multiple processes
+# by changing the maximum concurrent runs value, you can increase/decrease
+# the maximum running processes per. Default 1.
 #
-#  Changes accomodate post processing transcriptions with LLM
+# Changes accommodate post processing transcriptions with LLM
 
 # Process names and their maximum concurrent runs
-process1="transcribe_example.sh"
+process1="transcribe.sh"
 maxConcurrentRuns1=$MAX_CONCURRENT_TRANSFORMS  # Maximum concurrent runs for process1
 
 process2="auto-summary.py"

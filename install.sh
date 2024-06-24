@@ -5,7 +5,7 @@ echo "This script will build the required Docker images for Transcription Stream
 echo "It will first build the 'ts-web' image, followed by the 'ts-gpu' image."
 echo "Note: Building the 'ts-gpu' image may take some time as it downloads models for offline use."
 echo "After building the images, it will create necessary Docker volumes, start the services, and "
-echo "downloade the mistral model for the ts-gpt Ollama endpoint."
+echo "download the llama3 model for the ts-gpt Ollama endpoint."
 echo -n "Do you want to continue? (y/n): "
 
 # Read user input

@@ -19,8 +19,8 @@ RUN apt-get update && apt-get install -y \
     cython3 \
     git \
     python3-wheel \
-#    nvidia-cuda-toolkit \
-#    nvidia-cuda-toolkit-gcc \
+    nvidia-cuda-toolkit \
+    nvidia-cuda-toolkit-gcc \
     tzdata \
  && rm -rf /var/lib/apt/lists/*
 
@@ -37,7 +37,7 @@ RUN pip install -r requirements.txt
 
 # Copy the required files
 COPY ts-control.sh /root/scripts/
-COPY transcribe_example_d.sh /root/scripts/transcribe_example.sh
+COPY transcribe.sh /root/scripts/transcribe.sh
 COPY test.wav /home/transcriptionstream/
 COPY ts-summarize.py /root/scripts/
 COPY auto-summary.py /root/scripts/

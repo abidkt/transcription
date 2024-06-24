@@ -52,7 +52,6 @@ payload = {
     "model": "llama3",
     "prompt": prompt_text,
     "stream": False,
-    "format": "json",
     "keep_alive": "5s"
 }
 
@@ -95,7 +94,7 @@ if response is not None and response.status_code == 200:
 
     # Write the summary to a file named summary.txt in the same folder
     with open(os.path.join(folder_path, 'summary.json'), 'w', encoding='utf-8') as summary_file:
-        summary_file.write(json_data.text)
+        summary_file.write(json.dumps(json_data))
 
 #     payload = {"filename": folder_path}
 #     headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}

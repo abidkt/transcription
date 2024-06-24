@@ -23,7 +23,7 @@ def scan_and_summarize(base_directory):
 
             # If .txt and .srt files exist, check for summary.txt
             if txt_files and srt_exists:
-                summary_file = os.path.join(path, 'summary.txt')
+                summary_file = os.path.join(path, 'summary.json')
 
                 # Check if summary.txt does not exist in the subdirectory
                 if not os.path.isfile(summary_file):
@@ -37,5 +37,5 @@ def scan_and_summarize(base_directory):
                         # Change the ownership of the new summary.txt file
                         os.chown(summary_file, uid, gid)
 
-# Example usage
+
 scan_and_summarize('/transcriptionstream/transcribed')
