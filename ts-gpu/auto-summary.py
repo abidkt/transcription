@@ -48,4 +48,4 @@ def scan_and_summarize(base_directory):
                 os.chown(summary_file, uid, gid)
 
 
-scan_and_summarize('transcriptionstream/transcribed')
+scan_and_summarize('/transcriptionstream/transcribed')

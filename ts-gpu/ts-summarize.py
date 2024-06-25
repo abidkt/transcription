@@ -93,6 +93,7 @@ except Exception as e:
 if response is not None and response.status_code == 200:
     # Parse the JSON response
     json_data = response.json()
+    json_data['prompt'] = promptText
     # Extract the 'response' portion
     # response_text = json_data.get('response', 'No response found')
     # Print the formatted response text
