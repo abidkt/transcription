@@ -50,7 +50,9 @@ promptText = f"""Analyse the sale transcription below for the given check points
 The check points are:
 {checkPointsString}
 The transcription is as follows
-{transcriptionText}"""
+{transcriptionText}
+
+```json"""
 
 print(promptText)
 
@@ -94,22 +96,14 @@ if response is not None and response.status_code == 200:
     # Parse the JSON response
     json_data = response.json()
     json_data['prompt'] = promptText
-    # Extract the 'response' portion
-    # response_text = json_data.get('response', 'No response found')
-    # Print the formatted response text
-    ## we don't really need this
-    ##print(response_text)
 
     # Write the summary to a file named summary.txt in the same folder
     with open(os.path.join(folder_path, 'summary.json'), 'w', encoding='utf-8') as summary_file:
         summary_file.write(json.dumps(json_data))
 
-#     payload = {"filename": folder_path}
-#     headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
-#     f = open(os.path.join(app.config['UPLOAD_FOLDER'], 'data', filenameJson))
-#     requests.post(data.returnUrl, json=payload, headers=headers)
-#     data = json.load(f)
-#     return jsonify(data), 400
+    if checkPointsData['returnUrl']:
+        headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+        requests.post(checkPointsData['returnUrl'], json=json_data, headers=headers)
 
 else:
     if response is not None:
