@@ -44,13 +44,13 @@ for sub_dir in "${sub_dirs[@]}"; do
                 if [ "$sub_dir" == "diarize" ]; then
                     echo "--- diarizing $audio_file..." >> /proc/1/fd/1
                     diarize_start_time=$(date +%s)
-                    python3 diarize_parallel.py --batch-size 16 --whisper-model $DIARIZATION_MODEL --language en -a "$audio_file"
+                    python3 diarize_parallel.py --batch-size 16 --whisper-model $DIARIZATION_MODEL -a "$audio_file"
                     diarize_end_time=$(date +%s)
                     run_time=$((diarize_end_time - diarize_start_time))
                 elif [ "$sub_dir" == "transcribe" ]; then
                     echo "--- transcribing $audio_file..." >> /proc/1/fd/1
                             whisper_start_time=$(date +%s)
-                    whisperx --batch_size 12 --model $TRANSCRIPTION_MODEL --language en --output_dir "$new_dir" > "$new_dir/$base_name.txt" "$audio_file"
+                    whisperx --batch_size 12 --model $TRANSCRIPTION_MODEL --output_dir "$new_dir" > "$new_dir/$base_name.txt" "$audio_file"
                             whisper_end_time=$(date +%s)
                             run_time=$((whisper_end_time - whisper_start_time))
                 fi
