@@ -19,10 +19,11 @@ audio_extensions=("wav" "mp3" "flac" "ogg")
 # Loop over each subdirectory
 for sub_dir in "${sub_dirs[@]}"; do
     type_dir="$root_dir$sub_dir/"
-    for row_dir in "$type_dir"*/ ; do
+    for incoming_dir in "$type_dir"*/ ; do
         [ -L "${d%/}" ] && continue
 
-        incoming_dir="$type_dir$row_dir/"
+        row_id=$(basename $incoming_dir)
+
         # Loop over each audio file extension
         for ext in "${audio_extensions[@]}"; do
             # Loop over the files in the incoming directory with the current extension
@@ -36,7 +37,7 @@ for sub_dir in "${sub_dirs[@]}"; do
                 base_name=$(basename "$audio_file" ."$ext")
 
                 # Create a new subdirectory in the transcribed directory
-                new_dir="$transcribed_dir$base_name"
+                new_dir="$transcribed_dir$row_id/$base_name"
                 mkdir -p "$new_dir"
 
                 # Check which subdirectory we are in and run the appropriate command
@@ -60,7 +61,7 @@ for sub_dir in "${sub_dirs[@]}"; do
                 # Migrate this process to ts-control.sh as auto-summary.py
                 # Create the summary.txt file from the newly created srt file by sending it to ts-gpt or another ollama api endpoint
                 # ts-gpt can be enabled in the docker-compose.yml - if using ts-gpt, your url should be http://172.30.1.3:11434
-            #    python3 /root/scripts/ts-summarize.py "$new_dir" http://172.30.1.3:11434
+                # python3 /root/scripts/ts-summarize.py "$new_dir" http://172.30.1.3:11434
 
                 # Change the owner of the files to the user transcriptionstream
                 chown -R transcriptionstream:transcriptionstream "$new_dir"
@@ -74,5 +75,12 @@ for sub_dir in "${sub_dirs[@]}"; do
                 fi
             done
         done
+
+        data_file="data.json"
+        if [ -e "$incoming_dir$data_file" ]
+        then
+            mv "$incoming_dir$data_file"  "$transcribed_dir$row_id/"
+        fi
+
     done
 done

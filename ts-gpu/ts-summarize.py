@@ -13,44 +13,51 @@ if len(sys.argv) < 3:
 folder_path = sys.argv[1]
 api_base_url = sys.argv[2]
 
-# Find the text file with the same name as the folder
-folder_name = os.path.basename(folder_path)
-## Remove the timestamp (_YYYYMMddhhmmss) from the folder name
-folder_name_without_timestamp = re.sub(r'_[0-9]{14}$', '', folder_name)
-txt_file_name = folder_name_without_timestamp + '.txt'
-txt_file_path = os.path.join(folder_path, txt_file_name)
+checkPointsFile = os.path.join(folder_path, 'data.json')
 
-if not os.path.exists(txt_file_path):
-    print(f"No text file found with the name '{txt_file_name}' in the provided folder: {folder_path}")
+if not os.path.exists(checkPointsFile):
+    print("Check points file not exists")
     sys.exit(1)
 
-# Read the text file
-with open(txt_file_path, 'r', encoding='utf-8') as file:
-    transcription_text = file.read()
+checkPointsFile = open (checkPointsFile, "r")
+checkPointsData = json.loads(checkPointsFile.read())
 
-# The text for the prompt
-prompt_text = f"""
-Summarize the transcription below. Be sure to include pertinent information about the speakers, including name and anything else shared.
-Provide the summary output in the following style
+# Iterating through the json list
+checkPointsString = ''
+for i, checkPoint in enumerate(checkPointsData['checkPoints']):
+    checkPointsString += "Check point " + str(i+1) + ": " + checkPoint['text']+"\n"
+# Closing file
+checkPointsFile.close()
 
-Speakers: names or identifiers of speaking parties
-Topics: topics included in the transcription
-Ideas: any ideas that may have been mentioned
-Dates: dates mentioned and what they correspond to
-Locations: any locations mentioned
-Action Items: any action items
+transcriptionText = ''
+# Find the text file with the same name as the folder
+for audio_path in os.listdir(folder_path):
+    if not os.path.isdir(os.path.join(folder_path, audio_path)):
+        continue
 
-Summary: overall summary of the transcription
+    txt_file_name = audio_path + '.txt'
+    txt_file_path = os.path.join(folder_path, audio_path, txt_file_name)
 
+    if not os.path.exists(txt_file_path):
+        print(f"No text file found with the name '{txt_file_name}' in the provided folder: {folder_path}")
+        sys.exit(1)
+
+    # Read the text file
+    with open(txt_file_path, 'r', encoding='utf-8') as file:
+        transcriptionText += file.read() + "\n"
+
+promptText = f"""Analyse the sale transcription below for the given check points. Also give me a summary of the conversation.
+The check points are:
+{checkPointsString}
 The transcription is as follows
+{transcriptionText}"""
 
-{transcription_text}
+print(promptText)
 
-"""
 # JSON payload
 payload = {
     "model": "llama3",
-    "prompt": prompt_text,
+    "prompt": promptText,
     "stream": False,
     "keep_alive": "5s"
 }

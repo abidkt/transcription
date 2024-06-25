@@ -15,27 +15,37 @@ def scan_and_summarize(base_directory):
     for item in os.listdir(base_directory):
         path = os.path.join(base_directory, item)
 
-        # Check if the item is a directory
-        if os.path.isdir(path):
-            # Check for the presence of any .txt and .srt files in the subdirectory
-            txt_files = [file for file in os.listdir(path) if file.endswith('.txt')]
-            srt_exists = any(file.endswith('.srt') for file in os.listdir(path))
+        if not (os.path.exists(os.path.join(path, 'data.json'))):
+            break
 
-            # If .txt and .srt files exist, check for summary.txt
-            if txt_files and srt_exists:
-                summary_file = os.path.join(path, 'summary.json')
+        doSummary = True
+        for sub_dir in os.listdir(path):
+            sub_path = os.path.join(path, sub_dir)
 
-                # Check if summary.txt does not exist in the subdirectory
-                if not os.path.isfile(summary_file):
-                    for txt_file in txt_files:
-                        # Print message indicating creation of summary.txt for each .txt file
-                        print(f"Creating summary.txt for {txt_file} in {path}")
-                        # Call the external script with the directory path and the URL
-                        command = f'python3 /root/scripts/ts-summarize.py {path} http://{ollama_endpoint_ip}:11434'
-                        subprocess.run(command, shell=True)
+            # Check if the item is a directory
+            if os.path.isdir(sub_path):
+                # Check for the presence of any .txt and .srt files in the subdirectory
+                txt_files = [file for file in os.listdir(sub_path) if file.endswith('.txt')]
+                srt_exists = any(file.endswith('.srt') for file in os.listdir(sub_path))
 
-                        # Change the ownership of the new summary.txt file
-                        os.chown(summary_file, uid, gid)
+                # If .txt and .srt files exist, check for summary.txt
+                if not txt_files or not srt_exists:
+                    doSummary = False
+
+        if doSummary:
+            print("Creating summary")
+            summary_file = os.path.join(path, 'summary.json')
+
+            # Check if summary.json does not exist in the subdirectory
+            if not os.path.isfile(summary_file):
+                print(f"Creating summary.json for {path}")
+
+                # Call the external script with the directory path and the URL
+                command = f'python3 /root/scripts/ts-summarize.py {path} http://{ollama_endpoint_ip}:11434'
+                subprocess.run(command, shell=True)
+
+                # Change the ownership of the new summary.json file
+                os.chown(summary_file, uid, gid)
 
 
-scan_and_summarize('/transcriptionstream/transcribed')
+scan_and_summarize('transcriptionstream/transcribed')
