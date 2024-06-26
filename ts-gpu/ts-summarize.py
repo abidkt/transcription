@@ -46,13 +46,13 @@ for audio_path in os.listdir(folder_path):
     with open(txt_file_path, 'r', encoding='utf-8') as file:
         transcriptionText += file.read() + "\n"
 
-promptText = f"""Analyse the sale transcription below for the given check points. Also give me a summary of the conversation.
+promptText = f"""Analyse the sale transcription below for the given check points and also give me a summary of the conversation. MUST reply the result as json
 The check points are:
 {checkPointsString}
 The transcription is as follows
 {transcriptionText}
 
-```json"""
+"""
 
 print(promptText)
 
@@ -61,7 +61,8 @@ payload = {
     "model": "llama3",
     "prompt": promptText,
     "stream": False,
-    "keep_alive": "5s"
+    "keep_alive": "5s",
+    "format": "json"
 }
 
 # Try to send a GET request to check if the API is running

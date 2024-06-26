@@ -9,8 +9,8 @@
 ##  will be automatically created for transcriptions missing them.
 
 # Define the root directory and subdirectories
-root_dir="/transcriptionstream/incoming/"
-transcribed_dir="/transcriptionstream/transcribed/"
+root_dir="transcriptionstream/incoming/"
+transcribed_dir="transcriptionstream/transcribed/"
 sub_dirs=("diarize" "transcribe")
 
 # Define supported audio file extensions
@@ -82,5 +82,6 @@ for sub_dir in "${sub_dirs[@]}"; do
             mv "$incoming_dir$data_file"  "$transcribed_dir$row_id/"
         fi
 
+        rm -rf $incoming_dir
     done
 done
