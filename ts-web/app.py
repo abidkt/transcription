@@ -19,6 +19,8 @@ app.wsgi_app.add_middleware(MetricsMiddleware)
         
 # Use the TS_WEB_SECRET_KEY environment variable as the secret key, and the fallback
 app.secret_key = os.environ.get('TS_WEB_SECRET_KEY', 'some_secret_key')
+ollamaIp = os.environ.get('OLLAMA_ENDPOINT_IP', '172.30.1.3')
+salesdockUrl = os.environ.get('SALESDOCK_URL', 'https://app.salesdock.nl')
 
 TRANSCRIBED_FOLDER = '/transcriptionstream/transcribed'
 UPLOAD_FOLDER = '/transcriptionstream/incoming'
@@ -43,13 +45,14 @@ def get_extension(content_type):
     return False
 
 class CheckPointsSchema(Schema):
+    id = fields.Integer(required=True)
     text = fields.Str(required=True)
     class Meta:
         strict = True
 
 class AudioSchema(Schema):
     audioId = fields.Integer(required=True)
-    url = fields.Url(required=True)
+    url = fields.Str(required=True)
     class Meta:
         strict = True
 
@@ -57,6 +60,10 @@ class AudioAnalysisSchema(Schema):
     rowId = fields.Integer(required=True)
     audios = fields.Nested(AudioSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     checkPoints = fields.Nested(CheckPointsSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
+    returnHook = fields.Str(required=True)
+
+class GenerateSchema(Schema):
+    prompt = fields.Str(required=True)
 
 @app.route('/')
 def index():
@@ -76,7 +83,7 @@ def index():
     sorted_folders = sorted(valid_folders, key=lambda s: s.lower())  # Sorting by name in ascending order, case-insensitive
     return jsonify({"transcriptions": sorted_folders})
 
-@app.route('/upload_audio', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_audio():
     request_data = request.json
     schema = AudioAnalysisSchema()
@@ -93,40 +100,88 @@ def upload_audio():
 
     os.mkdir(folderPath)
     for audio in request_data['audios']:
-        response = requests.get(audio['url'], headers=headers)
+        audioUrl = salesdockUrl + '/' + audio['url']
+        response = requests.get(audioUrl, headers=headers, verify=False)
         if response.status_code == requests.codes.ok:
             contentType = response.headers.get('content-type')
             extension = get_extension(contentType)
             if (extension == False):
-                raise Exception('Invalid extension')
+                raise Exception('Invalid extension for a file')
 
             filename = secure_filename(str(audio['audioId']) + '.' + extension)
             with open(os.path.join(folderPath, filename), mode="wb") as file:
                 file.write(response.content)
         else:
-            raise Exception('Download from url failed')
+            raise Exception('Download from url failed for ' + audioUrl)
 
     with open(os.path.join(folderPath, secure_filename('data.json')), mode="w") as file:
         json.dump(request_data, file)
     return jsonify(success=True, message="File saved successfully"), 200
 
-@app.route('/get-summary', methods=['POST'])
-def load_files():
-    folder = request.form.get('folder')
-    if not folder:
-        return jsonify(error='Folder not specified'), 400
-    
-    folder_path = os.path.join(TRANSCRIBED_FOLDER, folder)
-    if not os.path.exists(folder_path):
+@app.route('/summary/<path:folder>', methods=['GET'])
+def summary(folder):
+    folderPath = os.path.join(TRANSCRIBED_FOLDER, folder)
+    if not os.path.exists(folderPath):
         return jsonify(error='Folder does not exist'), 404
-    
-    files = [f for f in os.listdir(folder_path) if not f.startswith('.')]
-    audio_file = next((f for f in files if f.lower().endswith(('.mp3', '.wav', '.ogg', '.flac'))), None)
-    srt_file = next((f for f in files if f.lower().endswith('.srt')), None)
-    
-    return jsonify(audio_file=audio_file, srt_file=srt_file, files=files)
 
-@app.route('/delete_folder/<path:folder>', methods=['DELETE'])
+    summary = False
+    if os.path.isfile(os.path.join(folderPath, 'summary.json')):
+        with open(os.path.join(folderPath, 'summary.json')) as f:
+            summary = json.load(f)
+
+    audios = []
+    for dir in os.listdir(folderPath):
+        subDir = os.path.join(folderPath, dir)
+        if os.path.isdir(subDir):
+            transcriptionFile = os.path.join(subDir, dir + '.txt')
+            if os.path.isfile(transcriptionFile):
+                with open(transcriptionFile) as f:
+                    audios.append({'id': dir, 'text': f.read()})
+
+#             transcriptionJson = os.path.join(subDir, dir + '.json')
+#             if os.path.isfile(transcriptionJson):
+#                 with open(transcriptionJson) as f:
+#                     transcription = json.load(f)
+#                     audios.append(transcription)
+
+    return jsonify(success=True, summary=summary, audios=audios)
+
+@app.route('/generate', methods=['POST'])
+def generate():
+    request_data = request.json
+    schema = GenerateSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(success=False, errors=err.messages), 400
+
+    ollamaUrl = 'http://' + ollamaIp + ':11434'
+    payload = {
+        "model": "llama3",
+        "prompt": request_data['prompt'],
+        "stream": False,
+        "keep_alive": "5s",
+        "format": "json"
+    }
+
+    apiResponse = requests.get(ollamaUrl, timeout=5)
+    if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+        raise Exception('Api is not working')
+
+    requestUrl = ollamaUrl + '/api/generate'
+    response = None
+    try:
+        response = requests.post(requestUrl, json=payload)
+    except Exception as e:
+        raise Exception("Error sending request to API endpoint: {}".format(e))
+
+    if response is not None and response.status_code == 200:
+       json_data = response.json()
+       return jsonify(success=True, data=json_data['response']), 200
+
+    return jsonify(success=False, message="Failed to get data"), 200
+
+@app.route('/delete/<path:folder>', methods=['DELETE'])
 def delete_folder(folder):
     folder_path = os.path.join(TRANSCRIBED_FOLDER, folder)
     if not os.path.exists(folder_path):
