@@ -143,7 +143,7 @@ def summary(folder):
             transcriptionJsonContents = False
             if os.path.isfile(transcriptionJson):
                 with open(transcriptionJson) as f:
-                    transcriptionJsonContents = json.load(f)
+                    transcriptionJsonContents = json.loads(f.decode('utf-8-sig'))
 
             audios.append({'id': dir, 'text': transcriptionFileContents, 'json': transcriptionFileJsonContents})
 
