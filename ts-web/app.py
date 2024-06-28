@@ -139,11 +139,11 @@ def summary(folder):
                 with open(transcriptionFile) as f:
                     text = f.read()
 
-                json = False
+                jsonData = False
                 with open(transcriptionFile) as f:
-                    json = json.load(f)
+                    jsonData = json.load(f)
 
-                audios.append({'id': dir, 'text': f.read(), 'json': json})
+                audios.append({'id': dir, 'text': f.read(), 'json': jsonData})
 
 #             transcriptionJson = os.path.join(subDir, dir + '.json')
 #             if os.path.isfile(transcriptionJson):
