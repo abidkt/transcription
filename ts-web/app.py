@@ -135,8 +135,15 @@ def summary(folder):
         if os.path.isdir(subDir):
             transcriptionFile = os.path.join(subDir, dir + '.txt')
             if os.path.isfile(transcriptionFile):
+                text = False
                 with open(transcriptionFile) as f:
-                    audios.append({'id': dir, 'text': f.read()})
+                    text = f.read()
+
+                json = False
+                with open(transcriptionFile) as f:
+                    json = json.load(f)
+
+                audios.append({'id': dir, 'text': f.read(), 'json': json})
 
 #             transcriptionJson = os.path.join(subDir, dir + '.json')
 #             if os.path.isfile(transcriptionJson):
