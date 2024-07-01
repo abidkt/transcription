@@ -21,6 +21,7 @@ services:
       - MAX_CONCURRENT_SUMMARYS=${MAX_CONCURRENT_SUMMARYS}
       - OLLAMA_ENDPOINT_IP=${OLLAMA_ENDPOINT_IP}
       - SALESDOCK_AUTHORIZATION=${SALESDOCK_AUTHORIZATION}
+      - SALESDOCK_URL=${SALESDOCK_URL}
     container_name: ts-gpu
     shm_size: 6gb
     ports:
@@ -49,6 +50,7 @@ services:
       - TS_WEB_SECRET_KEY=${TS_WEB_SECRET_KEY}
       - TS_WEB_TOKEN=${TS_WEB_TOKEN}
       - SALESDOCK_AUTHORIZATION=${SALESDOCK_AUTHORIZATION}
+      - SALESDOCK_URL=${SALESDOCK_URL}
     container_name: ts-web
     ports:
       - "5006:5000"
