@@ -10,6 +10,8 @@ if len(sys.argv) < 3:
     print("Please provide a folder path and an API base URL as command line arguments.")
     sys.exit(1)
 
+salesdockUrl = os.environ.get('SALESDOCK_URL', 'https://app.salesdock.nl')
+
 folder_path = sys.argv[1]
 api_base_url = sys.argv[2]
 
@@ -102,9 +104,8 @@ if response is not None and response.status_code == 200:
     with open(os.path.join(folder_path, 'summary.json'), 'w', encoding='utf-8') as summary_file:
         summary_file.write(json.dumps(json_data))
 
-    if checkPointsData['returnUrl']:
-        headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
-        requests.post(checkPointsData['returnUrl'], json=json_data, headers=headers)
+    headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+    requests.get(salesdockUrl + '/' + checkPointsData['returnHook'], headers=headers, verify=False)
 
 else:
     if response is not None:
