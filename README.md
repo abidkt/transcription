@@ -6,7 +6,7 @@ Created by [https://transcription.stream](https://transcription.stream) with spe
 Transcription Stream is a turnkey self-hosted diarization service that works completely offline. Out of the box it includes:
 - drag and drop diarization and transcription via SSH
 - a web interface for upload, review, and download of files
-- summarization with Ollama and llama3
+- summarization with Ollama and llama3/gemma2
 
 Use the web interface to upload, listen to, review, and download output files, or drop files via SSH into `transcribe` or `diarize`. Files are processed with output placed into a named and dated folder. Have a quick look at the <a href="https://www.youtube.com/watch?v=3RufeOjnlcE">install</a> and <a href="https://www.youtube.com/watch?v=pbZ8o7_MjG4">ts-web walkthrough</a> videos for a better idea.
 

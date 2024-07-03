@@ -15,21 +15,27 @@ salesdockUrl = os.environ.get('SALESDOCK_URL', 'https://app.salesdock.nl')
 folder_path = sys.argv[1]
 api_base_url = sys.argv[2]
 
-checkPointsFile = os.path.join(folder_path, 'data.json')
+dataFile = os.path.join(folder_path, 'data.json')
 
-if not os.path.exists(checkPointsFile):
+if not os.path.exists(dataFile):
     print("Check points file not exists")
     sys.exit(1)
 
-checkPointsFile = open (checkPointsFile, "r")
-checkPointsData = json.loads(checkPointsFile.read())
+data = open(checkPointsFile, "r")
+dataJson = json.loads(checkPointsFile.read())
 
 # Iterating through the json list
 checkPointsString = ''
-for i, checkPoint in enumerate(checkPointsData['checkPoints']):
+for i, checkPoint in enumerate(dataJson['checkPoints']):
     checkPointsString += "Check point " + str(i+1) + ": " + checkPoint['text']+"\n"
+
+# default
+ollamaModel = "llama3"
+if 'model' in dataJson
+    ollamaModel = dataJson['model']
+
 # Closing file
-checkPointsFile.close()
+dataFile.close()
 
 transcriptionText = ''
 # Find the text file with the same name as the folder
@@ -56,15 +62,14 @@ The transcription is as follows
 
 """
 
-print(promptText)
-
 # JSON payload
 payload = {
-    "model": "llama3",
+    "model": ollamaModel,
     "prompt": promptText,
     "stream": False,
     "keep_alive": "5s",
-    "format": "json"
+    "format": "json",
+    "temperature": 0
 }
 
 # Try to send a GET request to check if the API is running
@@ -105,7 +110,7 @@ if response is not None and response.status_code == 200:
         summary_file.write(json.dumps(json_data))
 
     headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
-    requests.get(salesdockUrl + '/' + checkPointsData['returnHook'], headers=headers, verify=False)
+    requests.get(salesdockUrl + '/' + dataJson['returnHook'], headers=headers, verify=False)
 
 else:
     if response is not None:

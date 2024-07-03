@@ -54,7 +54,8 @@ if [ "$answer" != "${answer#[Yy]}" ] ;then
 
     # Get the model installed on ts-gpt (requires curl)
     # only if ollama is enabled in docker-compose.yaml
-    echo "Downloading llama3 model"
+    echo "Downloading ollama models"
+    curl -X POST http://172.30.1.3:11434/api/pull -d '{"name": "llama3"}'
     curl -X POST http://172.30.1.3:11434/api/pull -d '{"name": "llama3"}'
 
     # Re-attach to compose logs

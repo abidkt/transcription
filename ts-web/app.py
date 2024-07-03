@@ -64,6 +64,7 @@ class AudioAnalysisSchema(Schema):
 
 class GenerateSchema(Schema):
     prompt = fields.Str(required=True)
+    model = fields.Str(required=True)
 
 @app.route('/')
 def index():
@@ -166,11 +167,12 @@ def generate():
 
     ollamaUrl = 'http://' + ollamaIp + ':11434'
     payload = {
-        "model": "llama3",
+        "model": request_data["model"],
         "prompt": request_data['prompt'],
         "stream": False,
         "keep_alive": "5s",
-        "format": "json"
+        "format": "json",
+        "temperature": 0
     }
 
     apiResponse = requests.get(ollamaUrl, timeout=5)
