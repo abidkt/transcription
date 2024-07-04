@@ -21,8 +21,8 @@ if not os.path.exists(dataFile):
     print("Check points file not exists")
     sys.exit(1)
 
-data = open(checkPointsFile, "r")
-dataJson = json.loads(checkPointsFile.read())
+data = open(dataFile, "r")
+dataJson = json.loads(data.read())
 
 # Iterating through the json list
 checkPointsString = ''
