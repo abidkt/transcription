@@ -31,7 +31,7 @@ for i, checkPoint in enumerate(dataJson['checkPoints']):
 
 # default
 ollamaModel = "llama3"
-if 'model' in dataJson
+if 'model' in dataJson:
     ollamaModel = dataJson['model']
 
 # Closing file
