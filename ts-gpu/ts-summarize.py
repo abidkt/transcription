@@ -35,7 +35,7 @@ if 'model' in dataJson:
     ollamaModel = dataJson['model']
 
 # Closing file
-dataFile.close()
+data.close()
 
 transcriptionText = ''
 # Find the text file with the same name as the folder
@@ -59,7 +59,6 @@ The check points are:
 {checkPointsString}
 The transcription is as follows
 {transcriptionText}
-
 """
 
 # JSON payload
@@ -69,7 +68,9 @@ payload = {
     "stream": False,
     "keep_alive": "5s",
     "format": "json",
-    "temperature": 0
+    "options": {
+        "temperature": 0
+    }
 }
 
 # Try to send a GET request to check if the API is running
@@ -105,7 +106,7 @@ if response is not None and response.status_code == 200:
     json_data = response.json()
     json_data['prompt'] = promptText
 
-    # Write the summary to a file named summary.txt in the same folder
+    # Write the summary to a file named summary.json in the same folder
     with open(os.path.join(folder_path, 'summary.json'), 'w', encoding='utf-8') as summary_file:
         summary_file.write(json.dumps(json_data))
 
