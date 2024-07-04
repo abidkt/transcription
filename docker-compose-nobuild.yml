@@ -20,6 +20,7 @@ services:
       - MAX_CONCURRENT_SUMMARYS=${MAX_CONCURRENT_SUMMARYS}
       - OLLAMA_ENDPOINT_IP=${OLLAMA_ENDPOINT_IP}
       - SALESDOCK_AUTHORIZATION=${SALESDOCK_AUTHORIZATION}
+      - SALESDOCK_URL=${SALESDOCK_URL}
     container_name: ts-gpu
     shm_size: 6gb
     ports:
@@ -48,6 +49,7 @@ services:
       - TS_WEB_SECRET_KEY=${TS_WEB_SECRET_KEY}
       - TS_WEB_TOKEN=${TS_WEB_TOKEN}
       - SALESDOCK_AUTHORIZATION=${SALESDOCK_AUTHORIZATION}
+      - SALESDOCK_URL=${SALESDOCK_URL}
     container_name: ts-web
     ports:
       - "5006:5000"
@@ -61,6 +63,9 @@ services:
 #  # Startup ts-gpt
   ts_gpt_service:
     image: ollama/ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL}
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS}
     container_name: ts-gpt
     ports:
       - "11434:11434"

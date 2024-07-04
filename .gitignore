@@ -3,3 +3,4 @@ ts-web/transcriptionstream
 ts-gpu/transcriptionstream
 .idea
 ts-web/__pycache__
+.env

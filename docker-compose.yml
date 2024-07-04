@@ -65,6 +65,9 @@ services:
 #  # Startup ts-gpt
   ts_gpt_service:
     image: ollama/ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL}
+      - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS}
     container_name: ts-gpt
     ports:
       - "11434:11434"
