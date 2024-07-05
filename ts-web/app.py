@@ -65,6 +65,7 @@ class AudioAnalysisSchema(Schema):
 class GenerateSchema(Schema):
     prompt = fields.Str(required=True)
     model = fields.Str(required=True)
+    options = fields.Dict()
 
 @app.route('/')
 def index():
