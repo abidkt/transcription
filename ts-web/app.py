@@ -173,7 +173,6 @@ def generate():
         "stream": False,
         "keep_alive": "5s",
         "format": "json",
-        "raw": True,
         "options" : request_data['options']
     }
 
@@ -188,11 +187,13 @@ def generate():
     except Exception as e:
         raise Exception("Error sending request to API endpoint: {}".format(e))
 
-    if response is not None and response.status_code == 200:
-       json_data = response.json()
-       return jsonify(success=True, data=json_data), 200
+    json_data = response.json()
 
-    return jsonify(success=False, message="Failed to get data"), 200
+    if response is not None and response.status_code == 200:
+        json_data = response.json()
+        return jsonify(success=True, data=json_data), 200
+
+    return jsonify(success=False, message=response.error), 200
 
 @app.route('/delete/<path:folder>', methods=['DELETE'])
 def delete_folder(folder):
