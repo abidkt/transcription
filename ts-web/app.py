@@ -173,6 +173,7 @@ def generate():
         "stream": False,
         "keep_alive": "5s",
         "format": "json",
+        "raw": "true",
         "options" : request_data['options']
     }
 
