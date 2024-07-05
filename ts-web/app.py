@@ -189,7 +189,7 @@ def generate():
 
     if response is not None and response.status_code == 200:
        json_data = response.json()
-       return jsonify(success=True, data=json_data['response']), 200
+       return jsonify(success=True, data=json_data), 200
 
     return jsonify(success=False, message="Failed to get data"), 200
 
