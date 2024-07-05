@@ -172,9 +172,7 @@ def generate():
         "stream": False,
         "keep_alive": "5s",
         "format": "json",
-        "options" : {
-            "temperature": 0
-        }
+        "options" : request_data['options']
     }
 
     apiResponse = requests.get(ollamaUrl, timeout=5)
