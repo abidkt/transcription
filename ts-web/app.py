@@ -163,8 +163,10 @@ def summary(folder):
 def prompt():
     if request.method == 'POST':
         prompt = request.form.get('prompt')
-        options = json.loads(request.form.get('options'))
+        options = request.form.get('options')
         model = request.form.get('model')
+
+        optionsJson = json.loads(options)
 
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         payload = {
@@ -173,7 +175,7 @@ def prompt():
             "stream": False,
             "keep_alive": "5s",
             "format": "json",
-            "options" : options
+            "options" : optionsJson
         }
 
         apiResponse = requests.get(ollamaUrl, timeout=5)
@@ -191,9 +193,9 @@ def prompt():
 
         if response is not None and response.status_code == 200:
             json_data = response.json()
-            return render_template('prompt.html', message=json_data['response'], prompt=prompt)
+            return render_template('prompt.html', message=json_data['response'], prompt=prompt, model=model, options=options)
 
-        return render_template('prompt.html', message=json_data['error'])
+        return render_template('prompt.html', message=json_data['error'], prompt=prompt, model=model, options=options)
 
     return render_template('prompt.html')
 
