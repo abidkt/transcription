@@ -174,6 +174,8 @@ def prompt():
             "prompt": prompt,
             "stream": False,
             "keep_alive": "5s",
+            "format": "json",
+            "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format {"checkPoints":[{"checkPointNumber","score":summary}],"totalScore", "summary"}',
             "options" : optionsJson
         }
 
