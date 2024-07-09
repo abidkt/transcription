@@ -170,7 +170,7 @@ def prompt():
 
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         payload = {
-            "model": "llama3",
+            "model": model,
             "prompt": prompt,
             "stream": False,
             "keep_alive": "5s",
