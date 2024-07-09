@@ -14,7 +14,9 @@ app = Flask(__name__)
 
 app.wsgi_app = MiddlewareManager(app)
 
-app.wsgi_app.add_middleware(AccessMiddleware)
+publicRoutes = ['/prompt']
+
+app.wsgi_app.add_middleware(AccessMiddleware, publicRoutes=publicRoutes)
 app.wsgi_app.add_middleware(MetricsMiddleware)
         
 # Use the TS_WEB_SECRET_KEY environment variable as the secret key, and the fallback
@@ -156,6 +158,44 @@ def summary(folder):
 #                     audios.append(transcription)
 
     return jsonify(success=True, summary=summary, audios=audios)
+
+@app.route('/prompt', methods=['GET', 'POST'])
+def prompt():
+    if request.method == 'POST':
+        prompt = request.form.get('prompt')
+
+        ollamaUrl = 'http://' + ollamaIp + ':11434'
+        payload = {
+            "model": "llama3",
+            "prompt": prompt,
+            "stream": False,
+            "keep_alive": "5s",
+            "format": "json",
+            "options" : {
+                "temperature": 0
+            }
+        }
+
+        apiResponse = requests.get(ollamaUrl, timeout=5)
+        if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+            raise Exception('Api is not working')
+
+        requestUrl = ollamaUrl + '/api/generate'
+        response = None
+        try:
+            response = requests.post(requestUrl, json=payload)
+        except Exception as e:
+            raise Exception("Error sending request to API endpoint: {}".format(e))
+
+        json_data = response.json()
+
+        if response is not None and response.status_code == 200:
+            json_data = response.json()
+            return render_template('prompt.html', message=json_data.response)
+
+        return render_template('prompt.html', message=json_data['error'])
+
+    return render_template('prompt.html')
 
 @app.route('/generate', methods=['POST'])
 def generate():

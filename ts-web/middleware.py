@@ -4,14 +4,18 @@ from flask_http_middleware import BaseHTTPMiddleware
 import os
 
 class AccessMiddleware(BaseHTTPMiddleware):
-    def __init__(self):
+    def __init__(self, publicRoutes = []):
         super().__init__()
+        self.publicRoutes = publicRoutes
 
     def dispatch(self, request, call_next):
-        if request.headers.get("Authorization") == "Bearer " + os.environ.get('TS_WEB_TOKEN'):
+        if request.path.startswith('/static/') or request.path in self.publicRoutes:
             return call_next(request)
         else:
-            raise Exception("Authentication Failed")
+            if request.headers.get("Authorization") == "Bearer " + os.environ.get('TS_WEB_TOKEN'):
+                return call_next(request)
+            else:
+                raise Exception("Authentication Failed")
 
     def error_handler(self, error):
         return jsonify({"error": str(error)})
