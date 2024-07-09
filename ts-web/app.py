@@ -174,7 +174,6 @@ def prompt():
             "prompt": prompt,
             "stream": False,
             "keep_alive": "5s",
-            "format": "json",
             "options" : optionsJson
         }
 
