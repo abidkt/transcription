@@ -163,6 +163,8 @@ def summary(folder):
 def prompt():
     if request.method == 'POST':
         prompt = request.form.get('prompt')
+        options = json.loads(request.form.get('options'))
+        model = request.form.get('model')
 
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         payload = {
@@ -171,9 +173,7 @@ def prompt():
             "stream": False,
             "keep_alive": "5s",
             "format": "json",
-            "options" : {
-                "temperature": 0
-            }
+            "options" : options
         }
 
         apiResponse = requests.get(ollamaUrl, timeout=5)
