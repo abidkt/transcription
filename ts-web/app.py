@@ -191,7 +191,7 @@ def prompt():
 
         if response is not None and response.status_code == 200:
             json_data = response.json()
-            return render_template('prompt.html', message=json_data.response)
+            return render_template('prompt.html', message=json_data.data)
 
         return render_template('prompt.html', message=json_data['error'])
 
