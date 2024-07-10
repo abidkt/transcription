@@ -46,12 +46,6 @@ def get_extension(content_type):
             return val
     return False
 
-class CheckPointsSchema(Schema):
-    id = fields.Integer(required=True)
-    text = fields.Str(required=True)
-    class Meta:
-        strict = True
-
 class AudioSchema(Schema):
     audioId = fields.Integer(required=True)
     url = fields.Str(required=True)
@@ -62,7 +56,6 @@ class AudioAnalysisSchema(Schema):
     saleId = fields.Integer(required=True)
     rowId = fields.Integer(required=True)
     audios = fields.Nested(AudioSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
-    checkPoints = fields.Nested(CheckPointsSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     returnHook = fields.Str(required=True)
 
 class GenerateSchema(Schema):
