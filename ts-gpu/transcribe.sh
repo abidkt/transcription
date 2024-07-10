@@ -80,9 +80,8 @@ for sub_dir in "${sub_dirs[@]}"; do
         if [ -e "$incoming_dir$data_file" ]
         then
             mv "$incoming_dir$data_file"  "$transcribed_dir$row_id/"
+            python3 notify.py --path "$transcribed_dir$row_id/"
         fi
-
-        python3 /root/scripts/notify.py --path "$transcribed_dir$row_id/"
 
         rm -rf $incoming_dir
     done
