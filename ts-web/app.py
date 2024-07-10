@@ -59,6 +59,7 @@ class AudioSchema(Schema):
         strict = True
 
 class AudioAnalysisSchema(Schema):
+    saleId = fields.Integer(required=True)
     rowId = fields.Integer(required=True)
     audios = fields.Nested(AudioSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     checkPoints = fields.Nested(CheckPointsSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
@@ -122,16 +123,11 @@ def upload_audio():
         json.dump(request_data, file)
     return jsonify(success=True, message="File saved successfully"), 200
 
-@app.route('/summary/<path:folder>', methods=['GET'])
+@app.route('/transcription/<path:folder>', methods=['GET'])
 def summary(folder):
     folderPath = os.path.join(TRANSCRIBED_FOLDER, folder)
     if not os.path.exists(folderPath):
         return jsonify(error='Folder does not exist'), 404
-
-    summary = False
-    if os.path.isfile(os.path.join(folderPath, 'summary.json')):
-        with open(os.path.join(folderPath, 'summary.json')) as f:
-            summary = json.load(f)
 
     audios = []
     for dir in os.listdir(folderPath):
@@ -151,54 +147,7 @@ def summary(folder):
 
             audios.append({'id': dir, 'text': transcriptionFileContents, 'json': transcriptionJsonContents})
 
-#             transcriptionJson = os.path.join(subDir, dir + '.json')
-#             if os.path.isfile(transcriptionJson):
-#                 with open(transcriptionJson) as f:
-#                     transcription = json.load(f)
-#                     audios.append(transcription)
-
-    return jsonify(success=True, summary=summary, audios=audios)
-
-@app.route('/prompt', methods=['GET', 'POST'])
-def prompt():
-    if request.method == 'POST':
-        prompt = request.form.get('prompt')
-        options = request.form.get('options')
-        model = request.form.get('model')
-
-        optionsJson = json.loads(options)
-
-        ollamaUrl = 'http://' + ollamaIp + ':11434'
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "stream": False,
-            "keep_alive": "5s",
-            "format": "json",
-            "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format {"checkPoints":[{"checkPointNumber","score":summary}],"totalScore", "summary"}',
-            "options" : optionsJson
-        }
-
-        apiResponse = requests.get(ollamaUrl, timeout=5)
-        if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
-            raise Exception('Api is not working')
-
-        requestUrl = ollamaUrl + '/api/generate'
-        response = None
-        try:
-            response = requests.post(requestUrl, json=payload)
-        except Exception as e:
-            raise Exception("Error sending request to API endpoint: {}".format(e))
-
-        json_data = response.json()
-
-        if response is not None and response.status_code == 200:
-            json_data = response.json()
-            return render_template('prompt.html', message=json_data['response'], prompt=prompt, model=model, options=options)
-
-        return render_template('prompt.html', message=json_data['error'], prompt=prompt, model=model, options=options)
-
-    return render_template('prompt.html')
+    return jsonify(success=True, audios=audios)
 
 @app.route('/generate', methods=['POST'])
 def generate():
@@ -216,6 +165,7 @@ def generate():
         "stream": False,
         "keep_alive": "5s",
         "format": "json",
+        "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
         "options" : request_data['options']
     }
 
@@ -249,7 +199,48 @@ def delete_folder(folder):
         return jsonify(success=True)
     except Exception as e:
         print(f"Error deleting folder: {e}")
-        return jsonify(success=False, error='Failed to delete folder'), 500    
+        return jsonify(success=False, error='Failed to delete folder'), 500
+
+@app.route('/prompt', methods=['GET', 'POST'])
+def prompt():
+    if request.method == 'POST':
+        prompt = request.form.get('prompt')
+        options = request.form.get('options')
+        model = request.form.get('model')
+
+        optionsJson = json.loads(options)
+
+        ollamaUrl = 'http://' + ollamaIp + ':11434'
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "keep_alive": "5s",
+            "format": "json",
+            "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
+            "options" : optionsJson
+        }
+
+        apiResponse = requests.get(ollamaUrl, timeout=5)
+        if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+            raise Exception('Api is not working')
+
+        requestUrl = ollamaUrl + '/api/generate'
+        response = None
+        try:
+            response = requests.post(requestUrl, json=payload)
+        except Exception as e:
+            raise Exception("Error sending request to API endpoint: {}" . format(e))
+
+        json_data = response.json()
+
+        if response is not None and response.status_code == 200:
+            json_data = response.json()
+            return render_template('prompt.html', message=json_data['response'], prompt=prompt, model=model, options=options)
+
+        return render_template('prompt.html', message=json_data['error'], prompt=prompt, model=model, options=options)
+
+    return render_template('prompt.html')
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
