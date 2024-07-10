@@ -50,7 +50,7 @@ if args.path != '':
         if doNotify:
             hookUrl = salesdockUrl + '/' + dataJson['returnHook']
             print(f"Pinging hook {hookUrl}")
-            headers = {'Authorization': "Bearer "}
+            headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
             result = requests.get(hookUrl, headers=headers, verify=False)
             if result.status_code == requests.codes.ok:
                 dataJson['notified'] = True
