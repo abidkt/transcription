@@ -45,7 +45,7 @@ do
   start_process_if_allowed $process1 $maxConcurrentRuns1
 
   # Check and start process2 if allowed
-  start_process_if_allowed $process2 $maxConcurrentRuns2
+  #start_process_if_allowed $process2 $maxConcurrentRuns2
 
   # Sleep for a short duration before checking again
   sleep 5

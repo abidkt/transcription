@@ -33,7 +33,6 @@ def scan_and_summarize(base_directory):
                     doSummary = False
 
         if doSummary:
-            print("Creating summary")
             summary_file = os.path.join(path, 'summary.json')
 
             # Check if summary.json does not exist in the subdirectory
@@ -48,4 +47,4 @@ def scan_and_summarize(base_directory):
                 os.chown(summary_file, uid, gid)
 
 
-scan_and_summarize('/transcriptionstream/transcribed')
+#scan_and_summarize('/transcriptionstream/transcribed')
