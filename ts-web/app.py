@@ -9,6 +9,7 @@ from flask_http_middleware import MiddlewareManager
 from middleware import AccessMiddleware, MetricsMiddleware, SecureRoutersMiddleware
 from marshmallow import Schema, fields, validate, ValidationError
 from datetime import datetime
+import ollama
 
 app = Flask(__name__)
 
@@ -225,10 +226,21 @@ def prompt():
         except Exception as e:
             raise Exception("Error sending request to API endpoint: {}" . format(e))
 
-        for chunk in response:
-            print(chunk, end='', flush=True)
-
         json_data = response.json()
+
+        stream = ollama.generate(
+            model='llama3',
+            prompt=prompt,
+            stream=True,
+            format="json",
+            system='You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
+            options=optionsJson
+        )
+
+        for chunk in stream:
+          print(chunk['message']['content'], end='', flush=True)
+
+
 
         if response is not None and response.status_code == 200:
             json_data = response.json()
