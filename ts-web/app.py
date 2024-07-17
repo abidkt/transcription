@@ -213,6 +213,8 @@ def prompt():
         response = sendPrompt(prompt)
         print(response)
 
+        print(prompt)
+
 #         stream = ollama.generate(
 #             model='llama3',
 #             prompt=prompt,
