@@ -25,6 +25,6 @@ EXPOSE 11434
 
 # Define environment variable
 # ENV NAME World
-
+CMD ["ollama serve"]
 CMD ["bash", "-c", "exec python /ts-web/app.py"]
 
