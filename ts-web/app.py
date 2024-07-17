@@ -201,8 +201,19 @@ def prompt():
         prompt = request.form.get('prompt')
         options = request.form.get('options')
         model = request.form.get('model')
-
         optionsJson = json.loads(options)
+
+        stream = ollama.generate(
+            model='llama3',
+            prompt=prompt,
+            stream=True,
+            format="json",
+            system='You are sale analyst. You will check sale conversion transcription(only) against given check points and give summary of the conversation in json format.',
+            options=optionsJson
+        )
+
+        for chunk in stream:
+          print(chunk['response'], end='', flush=True)
 
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         payload = {
@@ -227,20 +238,6 @@ def prompt():
             raise Exception("Error sending request to API endpoint: {}" . format(e))
 
         json_data = response.json()
-
-        stream = ollama.generate(
-            model='llama3',
-            prompt=prompt,
-            stream=True,
-            format="json",
-            system='You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
-            options=optionsJson
-        )
-
-        for chunk in stream:
-          print(chunk['response'], end='', flush=True)
-
-
 
         if response is not None and response.status_code == 200:
             json_data = response.json()
