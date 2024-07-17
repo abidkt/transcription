@@ -207,7 +207,7 @@ def prompt():
         payload = {
             "model": model,
             "prompt": prompt,
-            "stream": False,
+            "stream": True,
             "keep_alive": "5s",
             "format": "json",
             "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
@@ -224,6 +224,9 @@ def prompt():
             response = requests.post(requestUrl, json=payload)
         except Exception as e:
             raise Exception("Error sending request to API endpoint: {}" . format(e))
+
+        for chunk in response:
+            print(chunk, end='', flush=True)
 
         json_data = response.json()
 
