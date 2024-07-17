@@ -238,7 +238,7 @@ def prompt():
         )
 
         for chunk in stream:
-          print(chunk['message']['content'], end='', flush=True)
+          print(chunk['response'], end='', flush=True)
 
 
 
