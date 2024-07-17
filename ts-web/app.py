@@ -9,7 +9,7 @@ from flask_http_middleware import MiddlewareManager
 from middleware import AccessMiddleware, MetricsMiddleware, SecureRoutersMiddleware
 from marshmallow import Schema, fields, validate, ValidationError
 from datetime import datetime
-import ollama
+from langchain_community.llms import Ollama
 
 app = Flask(__name__)
 
@@ -37,6 +37,14 @@ MIME_TYPES = dict({
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 session_start_time = datetime.now()
+
+ollamaUrl = 'http://' + ollamaIp + ':11434'
+llm = Ollama(model="llama3", base_url=ollamaUrl, verbose=True)
+
+def sendPrompt(prompt):
+    global llm
+    response = llm.invoke(prompt)
+    return response
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -152,7 +160,6 @@ def generate():
     except ValidationError as err:
         return jsonify(success=False, errors=err.messages), 400
 
-    ollamaUrl = 'http://' + ollamaIp + ':11434'
     payload = {
         "model": request_data["model"],
         "prompt": request_data['prompt'],
@@ -202,6 +209,9 @@ def prompt():
         options = request.form.get('options')
         model = request.form.get('model')
         optionsJson = json.loads(options)
+
+        response = sendPrompt(prompt)
+        print(response);
 
         stream = ollama.generate(
             model='llama3',

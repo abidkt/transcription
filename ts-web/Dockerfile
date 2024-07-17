@@ -3,12 +3,6 @@
 # Use an official Python runtime as a parent image
 FROM python:3.8-slim-buster
 
-RUN : \
-    && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
-
-RUN curl -fsSL https://ollama.com/install.sh | sh
-
 # Set the working directory in the docker image
 WORKDIR /ts-web
 
@@ -21,9 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Make port available to the world outside this container
 EXPOSE 5000
 
-EXPOSE 11434
-
 # Define environment variable
 # ENV NAME World
-CMD ["ollama serve", "bash", "-c", "exec python /ts-web/app.py"]
+CMD ["bash", "-c", "exec python /ts-web/app.py"]
 
