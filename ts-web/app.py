@@ -211,19 +211,19 @@ def prompt():
         optionsJson = json.loads(options)
 
         response = sendPrompt(prompt)
-        print(response);
+        print(response)
 
-        stream = ollama.generate(
-            model='llama3',
-            prompt=prompt,
-            stream=True,
-            format="json",
-            system='You are sale analyst. You will check sale conversion transcription(only) against given check points and give summary of the conversation in json format.',
-            options=optionsJson
-        )
-
-        for chunk in stream:
-          print(chunk['response'], end='', flush=True)
+#         stream = ollama.generate(
+#             model='llama3',
+#             prompt=prompt,
+#             stream=True,
+#             format="json",
+#             system='You are sale analyst. You will check sale conversion transcription(only) against given check points and give summary of the conversation in json format.',
+#             options=optionsJson
+#         )
+#
+#         for chunk in stream:
+#           print(chunk['response'], end='', flush=True)
 
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         payload = {
