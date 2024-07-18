@@ -39,7 +39,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 session_start_time = datetime.now()
 
 ollamaUrl = 'http://' + ollamaIp + ':11434'
-llm = Ollama(model="llama3", base_url=ollamaUrl, verbose=True)
+llm = Ollama(model="llama3", base_url=ollamaUrl, temperature="0,0", verbose=True)
 
 def sendPrompt(prompt):
     global llm
