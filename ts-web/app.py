@@ -312,7 +312,7 @@ def prompt():
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         prompt = request.form.get('prompt')
         systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
-        model = Ollama(model="llama3", temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
+        model = Ollama(model="llama3", base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
         parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
         # And a query intented to prompt a language model to populate the data structure.
 
