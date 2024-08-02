@@ -8,11 +8,18 @@
 <body>
     <div class="container">
         <button type="button" id="summaryToggle" class="collapsible">AI</button>
+        <div class="content">
+            <h1>Result</h1>
+            {% if message %}
+            <p>{{ message }}</p>
+            {% endif %}
+        </div>
         <div id="summaryContent" class="content">
             <form method="post">
                 <label>
                     Model
                     <select name="model">
+                        <option value="llama3.1" {% if model == 'llama3.1' %}selected{% endif %}>llama3.1</option>
                         <option value="llama3" {% if model == 'llama3' %}selected{% endif %}>llama3</option>
                         <option value="gemma2" {% if model == 'gemma2' %}selected{% endif %}>gemma2</option>
                     </select>
@@ -29,13 +36,6 @@
                 </label>
                 <button type="submit" style="padding: 10px 15px; position: fixed; top: 10px; right: 10px">Submit</button>
             </form>
-        </div>
-
-        <div class="content">
-            <h1>Result</h1>
-            {% if message %}
-            <p>{{ message }}</p>
-            {% endif %}
         </div>
     </div>
 </body>
