@@ -301,7 +301,7 @@ def generate():
     systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
     model = Ollama(model=model, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
     parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
-    outputFormat = json.dumps(({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
+    outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
 
     apiResponse = requests.get(ollamaUrl, timeout=5)
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
