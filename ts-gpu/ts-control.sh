@@ -26,7 +26,7 @@ start_process_if_allowed() {
 
   # Start additional instances if the maximum limit has not been reached
   if [ $runningInstances -lt $maxConcurrentRuns ]; then
-    echo "Starting new instance of $processName. Current count: $runningInstances"
+    #echo "Starting new instance of $processName. Current count: $runningInstances"
     
     # Check if the process is a Python script
     if [[ $processName == *.py ]]; then
