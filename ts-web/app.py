@@ -320,7 +320,7 @@ def generate():
             | parser
         )
 
-        print(PromptTemplate)
+        print(f"prompt: {question_chain}")
 
         tasks["item-" + str(checkPoint['id'])] = question_chain
 
