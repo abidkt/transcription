@@ -70,10 +70,25 @@ class AudioAnalysisSchema(Schema):
     audios = fields.Nested(AudioSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     returnHook = fields.Str(required=True)
 
+class CheckPointSchema(Schema):
+    id = fields.Integer(required=True)
+    question = fields.Str(required=True)
+    description = fields.Str(required=True)
+    class Meta:
+        strict = True
+
 class GenerateSchema(Schema):
-    prompt = fields.Str(required=True)
+    transcription = fields.Str(required=True)
+    checkPoints = fields.Nested(CheckPointSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     model = fields.Str(required=True)
-    options = fields.Dict()
+    options = fields.Dict(),
+    additionalPrompts = fields.Str(required=False)
+
+class CheckPointResponse(BaseModel):
+    question: str = Field(description="question itself in the prompt for reference")
+    compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
+    score: str = Field(description="score of the check")
+    summary: str = Field(description="summary of the check")
 
 checkPoints = [
     {
@@ -231,6 +246,45 @@ def summary(folder):
 
     return jsonify(success=True, audios=audios)
 
+# @app.route('/generate', methods=['POST'])
+# def generate():
+#     request_data = request.json
+#     schema = GenerateSchema()
+#     try:
+#         result = schema.load(request_data)
+#     except ValidationError as err:
+#         return jsonify(success=False, errors=err.messages), 400
+#
+#     payload = {
+#         "model": request_data["model"],
+#         "prompt": request_data['prompt'],
+#         "stream": False,
+#         "keep_alive": "5s",
+#         "format": "json",
+#         "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
+#         "options" : request_data['options']
+#     }
+#
+#     apiResponse = requests.get(ollamaUrl, timeout=5)
+#     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+#         raise Exception('Api is not working')
+#
+#     requestUrl = ollamaUrl + '/api/generate'
+#     response = None
+#     try:
+#         response = requests.post(requestUrl, json=payload)
+#     except Exception as e:
+#         raise Exception("Error sending request to API endpoint: {}".format(e))
+#
+#     json_data = response.json()
+#
+#     if response is not None and response.status_code == 200:
+#         json_data = response.json()
+#         return jsonify(success=True, data=json_data), 200
+#
+#     return jsonify(success=False, message=response.error), 200
+
+
 @app.route('/generate', methods=['POST'])
 def generate():
     request_data = request.json
@@ -240,34 +294,45 @@ def generate():
     except ValidationError as err:
         return jsonify(success=False, errors=err.messages), 400
 
-    payload = {
-        "model": request_data["model"],
-        "prompt": request_data['prompt'],
-        "stream": False,
-        "keep_alive": "5s",
-        "format": "json",
-        "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
-        "options" : request_data['options']
-    }
+    ollamaUrl = 'http://' + ollamaIp + ':11434'
+    model = request_data["model"]
+    transcription = request_data['transcription']
+    checkPoints = request_data['checkPoints']
+    additionalPrompts = request_data['additionalPrompts']
+    systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
+    model = Ollama(model=model, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
+    parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
 
     apiResponse = requests.get(ollamaUrl, timeout=5)
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
         raise Exception('Api is not working')
 
-    requestUrl = ollamaUrl + '/api/generate'
-    response = None
-    try:
-        response = requests.post(requestUrl, json=payload)
-    except Exception as e:
-        raise Exception("Error sending request to API endpoint: {}".format(e))
+    tasks = {}
+    for checkPoint in checkPoints:
+        query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcription}\nFormat:\n{\"id\":\"check point number\",\"question\":\"check point heading in the prompt\",\"compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point\"}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
+        question_chain = (
+            PromptTemplate(
+                template=query,
+                input_variables=["transcription"],
+                partial_variables={"format_instructions": parser.get_format_instructions(), "question": checkPoint['question'], "questionDescription": checkPoint['description']},
+            )
+            | model
+            | parser
+        )
 
-    json_data = response.json()
+        tasks["item-" + str(checkPoint['id'])] = question_chain
 
-    if response is not None and response.status_code == 200:
-        json_data = response.json()
-        return jsonify(success=True, data=json_data), 200
+    multi_question_chain = RunnableParallel(tasks)
 
-    return jsonify(success=False, message=response.error), 200
+    output = multi_question_chain.invoke({
+        "transcription": prompt
+    })
+
+    jsonData = {}
+    for item in output:
+        jsonData[item] = json.loads(output[item].json())
+
+    return jsonify(success=True, data=jsonData), 200
 
 @app.route('/delete/<path:folder>', methods=['DELETE'])
 def delete_folder(folder):
@@ -284,12 +349,6 @@ def delete_folder(folder):
 
 @app.route('/prompt', methods=['GET', 'POST'])
 def prompt():
-    class CheckPointResponse(BaseModel):
-        question: str = Field(description="question itself in the prompt for reference")
-        compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
-        score: str = Field(description="score of the check")
-        summary: str = Field(description="summary of the check")
-
     class MyResponse(BaseModel):
     #     summary: str = Field(description="total summary of the transcription")
     #     additionalInfo: str = Field(description="additional info requested")
@@ -297,18 +356,6 @@ def prompt():
         checkPoints: List[CheckPointResponse] = []
 
     if request.method == 'POST':
-
-#         class CheckPointResponse(BaseModel):
-#             checkpoint: str = Field(description="question to set up a joke")
-#             punchline2: str = Field(description="answer to resolve the joke")
-#
-#             # You can add custom validation logic easily with Pydantic.
-#             @validator("setup")
-#             def question_ends_with_question_mark(cls, field):
-#                 if field[-1] != "?":
-#                     raise ValueError("Badly formed question!")
-#                 return field
-
         ollamaUrl = 'http://' + ollamaIp + ':11434'
         prompt = request.form.get('prompt')
         systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
