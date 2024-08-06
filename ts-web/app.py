@@ -320,6 +320,8 @@ def generate():
             | parser
         )
 
+        print(PromptTemplate)
+
         tasks["item-" + str(checkPoint['id'])] = question_chain
 
     if (request_data['additionalPrompts']):
