@@ -77,20 +77,20 @@ class CheckPointSchema(Schema):
     class Meta:
         strict = True
 
-class TranscriptionSchema(Schema):
-    start_time = fields.Integer(required=True)
-    end_time = fields.Integer(required=True)
-    speaker = fields.Str(required=True)
-    text = fields.Str()
-
-class TranscriptionsSchema(Schema):
-    transcription = fields.Nested(TranscriptionSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
+# class TranscriptionSchema(Schema):
+#     start_time = fields.Integer(required=True)
+#     end_time = fields.Integer(required=True)
+#     speaker = fields.Str(required=True)
+#     text = fields.Str()
+#
+# class TranscriptionsSchema(Schema):
+#     transcription = fields.Nested(TranscriptionSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
 
 class GenerateSchema(Schema):
-    transcriptions = fields.Nested(TranscriptionsSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
+    transcription = fields.Str(required=True)
     checkPoints = fields.Nested(CheckPointSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     model = fields.Str(required=True)
-    options = fields.Dict(),
+    options = fields.Dict()
     additionalPrompts = fields.Str(required=False)
 
 class CheckPointResponse(BaseModel):
@@ -303,12 +303,12 @@ def generate():
         return jsonify(success=False, errors=err.messages), 400
 
     ollamaUrl = 'http://' + ollamaIp + ':11434'
-    model = request_data["model"]
-    transcriptions = request_data['transcriptions']
+    modelName = request_data["model"]
+    transcription = request_data['transcription']
     checkPoints = request_data['checkPoints']
     additionalPrompts = request_data['additionalPrompts']
     systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
-    model = Ollama(model=model, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
+    model = Ollama(model=modelName, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
     parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
     outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
 
@@ -316,18 +316,15 @@ def generate():
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
         raise Exception('Api is not working')
 
-    transcriptions = json.dumps(transcriptions)
-
-    print(transcriptions)
+    #transcriptions = json.dumps(transcriptions)
 
     tasks = {}
     for checkPoint in checkPoints:
-        print(checkPoint)
-        query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcriptions}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
+        query = "Answer the check point based on the conversation transcript in the below format.\n{format_instructions}\nConversation transcript:\n{transcription}\nFormat:\n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: {question}\nQuestion description: \n{questionDescription}"
         question_chain = (
             PromptTemplate(
                 template=query,
-                input_variables=["transcriptions"],
+                input_variables=["transcription"],
                 partial_variables={"format": outputFormat, "format_instructions": parser.get_format_instructions(), "question": checkPoint['question'], "questionDescription": checkPoint['description']},
             )
             | model
@@ -341,7 +338,7 @@ def generate():
         question_chain = (
             PromptTemplate(
                 template=query,
-                input_variables=["transcriptions"],
+                input_variables=["transcription"],
                 partial_variables={"additionalPrompts": request_data['additionalPrompts']},
             )
             | model
@@ -353,7 +350,7 @@ def generate():
     multi_question_chain = RunnableParallel(tasks)
 
     output = multi_question_chain.invoke({
-        "transcriptions": prompt
+        "transcription": transcription
     })
 
     jsonData = {}
@@ -386,17 +383,17 @@ def prompt():
 
     if request.method == 'POST':
         ollamaUrl = 'http://' + ollamaIp + ':11434'
-        prompt = request.form.get('prompt')
+        modelName = "llama3"
+        transcription = request.form.get('prompt')
         systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
-        model = Ollama(model="llama3", base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
+        model = Ollama(model=modelName, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
         parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
         outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
         # And a query intented to prompt a language model to populate the data structure.
 
         tasks = {}
         for checkPoint in checkPoints:
-            print(checkPoint)
-            query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
+            query = "Answer the check point based on the conversation transcript in the below format.\n{format_instructions}\nConversation transcript:\n{transcription}\nFormat:\n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: {question}\nQuestion description: \n{questionDescription}"
             question_chain = (
                 PromptTemplate(
                     template=query,
@@ -407,12 +404,12 @@ def prompt():
                 | parser
             )
 
-            tasks["item" + str(checkPoint['id'])] = question_chain
+            tasks["item-" + str(checkPoint['id'])] = question_chain
 
         multi_question_chain = RunnableParallel(tasks)
 
         output = multi_question_chain.invoke({
-            "transcription": prompt
+            "transcription": transcription
         })
 
         jsonData = {}
