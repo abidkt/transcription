@@ -78,7 +78,7 @@ class CheckPointSchema(Schema):
         strict = True
 
 class GenerateSchema(Schema):
-    transcription = fields.Str(required=True)
+    transcription = fields.Dict(required=True)
     checkPoints = fields.Nested(CheckPointSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     model = fields.Str(required=True)
     options = fields.Dict(),
