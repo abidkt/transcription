@@ -318,10 +318,11 @@ def generate():
 
     transcriptions = json.dumps(transcriptions)
 
-    print (transcriptions);
+    print(transcriptions)
 
     tasks = {}
     for checkPoint in checkPoints:
+        print(checkPoint)
         query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcriptions}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
         question_chain = (
             PromptTemplate(
@@ -394,6 +395,7 @@ def prompt():
 
         tasks = {}
         for checkPoint in checkPoints:
+            print(checkPoint)
             query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
             question_chain = (
                 PromptTemplate(
