@@ -304,7 +304,7 @@ def generate():
 
     ollamaUrl = 'http://' + ollamaIp + ':11434'
     model = request_data["model"]
-    transcription = request_data['transcription']
+    transcriptions = request_data['transcriptions']
     checkPoints = request_data['checkPoints']
     additionalPrompts = request_data['additionalPrompts']
     systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
@@ -318,11 +318,11 @@ def generate():
 
     tasks = {}
     for checkPoint in checkPoints:
-        query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
+        query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcriptions}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
         question_chain = (
             PromptTemplate(
                 template=query,
-                input_variables=["transcription"],
+                input_variables=["transcriptions"],
                 partial_variables={"format": outputFormat, "format_instructions": parser.get_format_instructions(), "question": checkPoint['question'], "questionDescription": checkPoint['description']},
             )
             | model
@@ -338,7 +338,7 @@ def generate():
         question_chain = (
             PromptTemplate(
                 template=query,
-                input_variables=["transcription"],
+                input_variables=["transcriptions"],
                 partial_variables={"additionalPrompts": request_data['additionalPrompts']},
             )
             | model
@@ -350,7 +350,7 @@ def generate():
     multi_question_chain = RunnableParallel(tasks)
 
     output = multi_question_chain.invoke({
-        "transcription": prompt
+        "transcriptions": prompt
     })
 
     jsonData = {}
@@ -408,7 +408,7 @@ def prompt():
         multi_question_chain = RunnableParallel(tasks)
 
         output = multi_question_chain.invoke({
-            "transcription": prompt
+            "transcriptions": transcriptions
         })
 
         jsonData = {}
