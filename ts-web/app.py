@@ -77,8 +77,17 @@ class CheckPointSchema(Schema):
     class Meta:
         strict = True
 
+class TranscriptionSchema(Schema):
+    start_time = fields.Integer(required=True)
+    end_time = fields.Integer(required=True)
+    speaker = fields.Str(required=True)
+    text = fields.Str()
+
+class TranscriptionsSchema(Schema):
+    transcription = fields.Nested(TranscriptionSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
+
 class GenerateSchema(Schema):
-    transcription = fields.Dict(required=True)
+    transcriptions = fields.Nested(TranscriptionsSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     checkPoints = fields.Nested(CheckPointSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     model = fields.Str(required=True)
     options = fields.Dict(),
