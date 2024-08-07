@@ -408,7 +408,7 @@ def prompt():
         multi_question_chain = RunnableParallel(tasks)
 
         output = multi_question_chain.invoke({
-            "transcription": transcription
+            "transcription": prompt
         })
 
         jsonData = {}
