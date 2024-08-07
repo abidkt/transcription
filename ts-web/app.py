@@ -74,6 +74,7 @@ class CheckPointSchema(Schema):
     id = fields.Integer(required=True)
     question = fields.Str(required=True)
     description = fields.Str(required=True)
+    weightage = fields.Integer()
     class Meta:
         strict = True
 
