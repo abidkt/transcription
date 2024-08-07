@@ -392,7 +392,7 @@ def prompt():
 
         tasks = {}
         for checkPoint in checkPoints:
-            query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcriptions}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
+            query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
             question_chain = (
                 PromptTemplate(
                     template=query,
@@ -408,7 +408,7 @@ def prompt():
         multi_question_chain = RunnableParallel(tasks)
 
         output = multi_question_chain.invoke({
-            "transcriptions": transcriptions
+            "transcription": transcription
         })
 
         jsonData = {}
