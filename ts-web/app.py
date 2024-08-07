@@ -316,6 +316,10 @@ def generate():
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
         raise Exception('Api is not working')
 
+    transcriptions = json.dumps(transcriptions)
+
+    print (transcriptions);
+
     tasks = {}
     for checkPoint in checkPoints:
         query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcriptions}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
@@ -329,12 +333,10 @@ def generate():
             | parser
         )
 
-        print(f"prompt: {question_chain}")
-
         tasks["item-" + str(checkPoint['id'])] = question_chain
 
     if (request_data['additionalPrompts']):
-        query = "Conversation transcript:\n{transcriptions}\nFormat: \n{format}\nPrompt:\n {additionalPrompts}"
+        query = "Conversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\n {additionalPrompts}"
         question_chain = (
             PromptTemplate(
                 template=query,
@@ -390,7 +392,6 @@ def prompt():
         outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
         # And a query intented to prompt a language model to populate the data structure.
 
-        print(prompt)
         tasks = {}
         for checkPoint in checkPoints:
             query = "Answer the check point based on the conversation transcript in the below format.{format_instructions}\nConversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint. \nQuestion: {question}\nQuestion description: \n{questionDescription}"
