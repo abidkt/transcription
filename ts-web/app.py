@@ -100,82 +100,6 @@ class CheckPointResponse(BaseModel):
     score: str = Field(description="score of the check")
     summary: str = Field(description="summary of the check")
 
-checkPoints = [
-    {
-        "id": 1,
-        "question": "Maakt de medewerker geen gebruik van misleidende argumentatie?",
-        "description": "De medewerker maakt geen gebruik van misleidende argumenten, in de breedste zin van het woord. Dit betekent dat het geven van onjuiste informatie, het achterhouden van belangrijke informatie en het presenteren van informatie die de medewerker niet kan weten, niet is toegestaan.Bijvoorbeeld, de medewerker mag niet suggereren dat er voor de consument niets verandert omdat hij bij dezelfde netbeheerder blijft of deel uitmaakt van hetzelfde collectief. De medewerker moet duidelijk maken dat de netbeheerder verantwoordelijk is voor het transport van stroom en gas, maar niet voor de levering ervan. Negatieve uitspraken over andere leveranciers of het verspreiden van onjuiste informatie over de markt, zoals \"de markt is duur omdat X het heeft overgenomen\", zijn niet toegestaan.Er is sprake van misleidende argumentatie als de consument wordt misleid door de medewerker. Dit gebeurt wanneer de medewerker onjuiste informatie verstrekt. Een voorbeeld hiervan is wanneer de medewerker doet alsof hij de huidige tarieven van de consument kan zien en zegt: \"Uw huidige tarief is 22 cent en dit kan verlaagd worden naar 15 cent.\" Dit is misleidend en moet worden afgekeurd.De argumentatie is ook onjuist als de medewerker beweert dat er fouten zijn gemaakt bij de vorige overstap van de consument, waardoor deze een hoge eindafrekening heeft en beter kan overstappen. Als de medewerker suggereert dat de consument is 'opgelicht', wordt dit afgekeurd. Ook als de medewerker doet alsof hij de klant al kent, eerder zaken voor de klant heeft geregeld en de klant aangeeft dat dit niet het geval is, wordt dit als fout beschouwd.Als de medewerker zegt dat hij belt in verband met het huidige contract van de klant bij bijvoorbeeld Energiedirect, wordt dit ook afgekeurd."
-    },{
-        "id": 2,
-        "question": "Benoemt de medewerker de handelsnaam van de adverteerder?",
-        "description": "Aan het begin van het gesprek moet de agent duidelijk de naam van de organisatie noemen van waaruit het gesprek wordt gevoerd. Dit wordt afgekeurd in de volgende gevallen:- Als wordt aangegeven dat de werving uit naam van ENGIE gebeurt terwijl dit niet het geval is.- Als de handelsnaam niet wordt vermeld.- Als wordt gezegd dat de agent namens de netbeheerder belt."
-    },{
-        "id": 3,
-        "question": "Heeft de medewerker benoemd dat het gaat om het aanbieden van een nieuwenergiecontract?",
-        "description": "Aan het begin van het gesprek moet de consument weten dat het gesprek gaat over een aanbod voor de levering van gas en/of stroom. Het is belangrijk dat termen zoals aanbod, voorstel, aanbieding, maatwerk of propositie worden gebruikt. Het is niet voldoende als de agent alleen spreekt over een tariefswijziging, een wijziging in het contract, of alleen het woord korting gebruikt.Verdieping: Als blijkt dat de agent de consument bijvoorbeeld vijf minuten eerder al heeft geïnformeerd over het aanbod, hoeft de agent het woord 'aanbod' niet opnieuw te gebruiken. Het moet echter wel duidelijk zijn dat de consument begrijpt wat het doel van dit gesprek is.De agent moet duidelijk aangeven dat het om een nieuw aanbod gaat. Als de agent zegt dat hij de consument een jaar geleden een aanbod heeft gedaan en nu weer contact opneemt, is dit niet duidelijk genoeg. Het moet expliciet zijn dat er nu een nieuw aanbod wordt gedaan. Anders wordt dit afgekeurd."
-    },{
-        "id": 4,
-        "question": "Beëindigt de medewerker het gesprek als er sprake is van een kwetsbare consument?",
-        "description": "Een kwetsbare consument is iemand die door zijn of haar kwetsbaarheid niet zelfstandig beslissingen kan nemen over het energiecontract. Dit kan bijvoorbeeld iemand zijn die meerdere keren aangeeft het niet te begrijpen, iemand die de taal niet goed spreekt, of iemand die onder bewind staat.Dit criterium is niet relevant als de consument niet kwetsbaar of onervaren is. Het criterium wordt als goed beoordeeld als de agent adequaat rekening houdt met de kwetsbaarheid of onervarenheid van de consument.Voorbeelden van kwetsbare consumenten:Iemand die de Nederlandse taal niet beheerst.Iemand die aangeeft onder bewindvoering te staan.Iemand die ouder is dan 75 jaar.Misbruik van de onkunde of onwetendheid van de consument.Twijfel aan de mentale gezondheid van de consument."
-    },{
-        "id": 5,
-        "question": "Is de verbruiksbepaling c.q. aanbod op maat correct tot stand gekomen?",
-        "description": "De agent stelt de benodigde vragen, verstrekt proactief de benodigde informatie en vraagt door bij onduidelijkheden. Een gepersonaliseerd aanbod betekent dat de agent ervoor moet zorgen dat het aanbod aansluit op de persoonlijke situatie van de consument.Voor een correcte uitvoering van de gepersonaliseerde aanbodprocedure, zijn er maximaal drie stappen, in deze volgorde:De agent vraagt of de consument het verbruik weet.Indien nee, vraagt de agent of de consument het verbruik kan opzoeken, bijvoorbeeld via de jaarnota, de online omgeving of app van de huidige leverancier.Indien nee, maakt de agent gebruik van de schattingstool om het verbruik te schatten op basis van de situatie van de consument. De agent moet hierbij minimaal drie inhoudelijke vragen stellen.De agent moet nagaan of er sprake is van terug levering, waarbij de consument zelf elektriciteit opwekt. Dit doet de agent door te vragen of de consument zelf elektriciteit opwekt, bijvoorbeeld via zonnepanelen.Verdieping:De agent heeft een inspanningsverplichting. Eerst vraagt hij naar het daadwerkelijke verbruik van de consument. Als de consument dit niet weet en ook niet bereid is om dit op een later moment op te zoeken, moet de agent een goede inschatting maken van het verbruik. Dit betekent dat hij vragen stelt om een goed beeld van de situatie te krijgen, zoals: hoeveel mensen wonen er in de woning? Wat voor type woning is het? Hoe is de woning geïsoleerd? Wat voor type meter heeft de consument? Minimaal drie parameters moeten worden gebruikt. Indien dit niet gebeurt, wordt dit afgekeurd.Het register dat het gemiddelde verbruik van de afgelopen jaren bijhoudt (CAR / CER) is niet beschikbaar voor de partners. Als de agent beweert dit register te hebben geraadpleegd, is dit fout. Ook het zeggen dat hij het contract van de consument heeft geraadpleegd, wordt afgekeurd omdat de agent dit niet kan inzien.Als de agent een verbruik noemt zonder uitleg over hoe dit verbruik is vastgesteld, wordt dit afgekeurd.Als de agent aangeeft dat het verbruik van de consument bekend is in zijn bestand of systeem en dit gebruikt, wordt dit afgekeurd.De consument moet duidelijk weten hoe de medewerker het aanbod heeft samengesteld. Dit doet de medewerker door bijvoorbeeld een controlevraag te stellen: \"Mag ik van dit verbruik uitgaan?\" of door samen te vatten: \"Op basis van X kWh en X m³ kom ik uit op … Zal ik hiervan uitgaan?\""
-    },{
-        "id": 6,
-        "question": "Heeft de medewerker het jaarbedrag genoemd?",
-        "description": "De medewerker moet de totale verwachte jaarkosten vermelden. Het is belangrijk dat hij/zij duidelijk maakt dat deze jaarkosten een schatting zijn, bijvoorbeeld door termen te gebruiken zoals verwachtte, geschatte of indicatieve. Dit geeft aan dat de jaarkosten afhankelijk zijn van het daadwerkelijke verbruik van de klant.Let op: Dit mag ook in de samenvatting, zolang het vóór het versturen van het aanbod gebeurt"
-    },{
-        "id": 7,
-        "question": "Heeft de medewerker benoemd dat het jaarbedrag inclusief btw, overheidsheffingenen netbeheerkosten is?",
-        "description": "De totale jaarkosten bestaan uit verschillende onderdelen, inclusief componenten waar de energieleverancier geen controle over heeft. De medewerker moet duidelijk maken waaruit deze jaarkosten zijn opgebouwd om een compleet overzicht te geven van de kostenstructuur.De medewerker moet ten minste aangeven dat het jaarbedrag inclusief BTW, overheidsheffingen en netbeheerkosten is. Andere terminologie is ook acceptabel, zoals vaste en variabele leveringskosten, netbeheerkosten, belastingen en toeslagen.Let op: Dit is ook acceptabel als het in de samenvatting of voicelog wordt genoemd, zolang het maar duidelijk wordt vermeld voordat het aanbod wordt verstuurd."
-    },{
-        "id": 8,
-        "question": "Heeft de medewerker het leveringstarief incl. BTW en overheidsheffingen en hetbedrag van de vaste leveringskosten benoemd?",
-        "description": "De medewerker moet het all-in tarief met alle decimalen vermelden, evenals de maandelijkse vaste kosten. Dit gebeurt meestal in de samenvatting:De tarieven die bij deze [LOOPTIJD] overeenkomst horen zijn (de getallen niet afronden!):Gas: [X] eurocent per m³Elektriciteit (enkel tarief): [X] eurocent per kWh Elektriciteit (normaal tarief): [X] eurocent per kWh Elektriciteit (dal tarief): [X] eurocent per kWh Alle bovengenoemde tarieven en jaarkosten zijn inclusief belastingen, toeslagen en netbeheerkosten. Deze worden gespecificeerd in de overeenkomst die ik u toestuur. De vaste leveringskosten bedragen [X] euro per maand per product, inclusief BTW"
-    },{
-        "id": 9,
-        "question": "Heeft de medewerker duidelijk de startdatum afgesproken met de consument?",
-        "description": "De medewerker dient duidelijk te vermelden wanneer de start van levering plaatsvindt."
-    },{
-        "id": 10,
-        "question": "Heeft de medewerker de consument geïnformeerd over een eventuele boete die de oude leverancier in rekening kan brengen?",
-        "description": "De medewerker dient de consument erop te wijzen dat indien de klant vast zit aan een meerjarig contract de huidige energieleverancier een boete in rekening kan brengen. De medewerker dient in ieder geval de klant erop te wijzen dat de huidige leverancier een boete kan opleggen indien de klant beschikt over een nog lopend meerjarig contract. Indien dit vaste contract is afgesloten voor 1/6/2023  geldt de oude boete zoals onderstaand omschreven in voorbeeld 1. Indien dit vaste contract is afgesloten na 1/6/2023 geldt de nieuwe boete welke is omschreven in voorbeeld 2. Voorbeeld 1: Voor energiecontracten die vóór 1 juni 2023 zijn afgesloten, geldt een vaste opzegboete gebaseerd op de resterende looptijd van het contract: Minder dan 1,5 jaar resterend: €50 1,5 tot 2 jaar resterend: €75 2 tot 2,5 jaar resterend: €100 Meer dan 2,5 jaar resterend: €125 Deze bedragen gelden per contract en moeten verdubbeld worden als de consument zowel een gas- als een stroomcontract heeft. Voorbeeld 2 Boete voor Contracten Gesloten na 1 juni 2023 Voor contracten afgesloten na 1 juni 2023 is de opzegboete gebaseerd op het prijsverschil tussen het oude en nieuwe tarief, vermenigvuldigd met het geschatte resterende verbruik. Dit betekent dat de boete kan variëren: Prijsverschil berekenen: Verschil tussen oude en nieuwe tarieven. Resterend verbruik berekenen: Geschatte hoeveelheid energie die nog verbruikt zou worden. Boete berekenen: Prijsverschil x resterend verbruik. Deze methode kan leiden tot hogere boetes als het prijsverschil groot is en er nog veel verbruik te verwachten is."
-    },{
-        "id": 11,
-        "question": "Heeft de medewerker de duur van de overeenkomst gecommuniceerd?",
-        "description": "De medewerker dient de duur van de overeenkomst duidelijk te vermelden aan de klant. Dit mag ook benoemd worden in de voicelog."
-    },{
-        "id": 12,
-        "question": "Heeft de medewerker de mogelijkheid tot tussentijdse opzegging benoemd en aangegeven dat in dat geval (geen) opzegkosten van toepassing kan zijn?",
-        "description": "Indien het een variabel contract betreft dan is er geen opzegboete van toepassing en kan de klant kosteloos overstappen naar een andere energieleverancier. Indien er sprake is van een vaste looptijd en/of een vast contract met vaste prijzen dan is er een opzegboete van toepassing. De medewerker dient dit in beide gevallen duidelijk aan te geven aan de consument."
-    },{
-        "id": 13,
-        "question": "Heeft de medewerker de consument geïnformeerd over het verlengproces. Overeenkomst met variabele tarieven die maandelijks opzegbaar is?",
-        "description": "Indien er sprake is van een overeenkomst met vaste tarieven dient de medewerker bij de klant aan te geven dat na de vaste looptijd de overeenkomst automatisch wordt verlengd voor onbepaalde tijd, tegen de dan geldende variabele tarieven. Indien er sprake is van een variabele overeenkomst is dit geen verplichting en dient de medewerker de klant te wijzen op het feit dat de overeenkomst variabel is en dat de klant op elk willekeurig moment kan overstappen naar een andere energiemaatschappij."
-    },{
-        "id": 14,
-        "question": "Heeft de medewerker meerdere betaalwijzen correct aangeboden?",
-        "description": "In het gesprek dient de medewerker de klant minimaal 2 mogelijkheden tot betaling aan te bieden. Dit kan per automatische incasso en/of per factuur c.q. acceptgiro gedaan worden."
-    },{
-        "id": 15,
-        "question": "Heeft de medewerker duidelijk gemaakt dat de klant overstapt naar ENGIE?",
-        "description": "De medewerker dient ondubbelzinnig duidelijk te maken dat bij het aanvaarden van de overeenkomst en/of offerte de klant een overstap zal maken naar een andere energieleverancier. Dit criterium is zeer belangrijk en dient scherp nageleefd en gecontroleerd te worden. Indien wordt geconstateerd dat de klant de indruk krijgt dat er niks veranderd en de klant dus geen overstap maakt dient dit punt afgekeurd te worden."
-    },{
-        "id": 16,
-        "question": "Heeft de medewerker duidelijk gemaakt dat de consument door op akkoord te klikken een overeenkomst aangaat?",
-        "description": "De medewerker dient de overeenkomst naar de klant te versturen per e-mail of SMS, dit dient hij vooraf ook duidelijk te vermelden aan de klant. Het moet duidelijk zijn dat het een aanbod betreft en dat indien de klant op akkoord klikt er een overeenkomst tot stand komt."
-    },{
-        "id": 17,
-        "question": "Heeft de medewerker op een juiste wijze de wettelijke bedenktijd van 14 dagen benoemd?",
-        "description": "De medewerker dient de klant te attenderen op het feit dat de klant na het accorderen van de overeenkomst welke per email of sms is verzonden er een wettelijke bedenktijd geldt van 14 kalenderdagen. Deze overeenkomst kan binnen 14 kalenderdagen telefonisch, schriftelijk en/of via een invulformulier op de website van de betreffende energiemaatschappij worden geannuleerd zonder opgave van reden."
-    },{
-        "id": 18,
-        "question": "Heeft de medewerker het Recht van Verzet aangeboden?",
-        "description": "De medewerker dient aan het einde van een positief of negatief gesprek een poging te wagen om het recht van verzet/bezwaar aan te bieden. Uitzondering hierop is wanneer er door de medewerker een concrete terugbelafspraak wordt gemaakt met prospect."
-    }
-]
-
 @app.route('/')
 def index():
     # Reset the session variable on page load
@@ -335,7 +259,7 @@ def generate():
         tasks["item-" + str(checkPoint['id'])] = question_chain
 
     if (request_data['additionalPrompts']):
-        query = "Conversation transcript:\n{transcription}\nFormat: \n{format}\nPrompt:\n {additionalPrompts}"
+        query = "Conversation transcript:\n{transcription}\nPrompt:\n {additionalPrompts}"
         question_chain = (
             PromptTemplate(
                 template=query,
@@ -381,6 +305,81 @@ def prompt():
         totalScore: int = Field(description="total score")
         checkPoints: List[CheckPointResponse] = []
 
+    checkPoints = [
+        {
+            "id": 1,
+            "question": "Maakt de medewerker geen gebruik van misleidende argumentatie?",
+            "description": "De medewerker maakt geen gebruik van misleidende argumenten, in de breedste zin van het woord. Dit betekent dat het geven van onjuiste informatie, het achterhouden van belangrijke informatie en het presenteren van informatie die de medewerker niet kan weten, niet is toegestaan.Bijvoorbeeld, de medewerker mag niet suggereren dat er voor de consument niets verandert omdat hij bij dezelfde netbeheerder blijft of deel uitmaakt van hetzelfde collectief. De medewerker moet duidelijk maken dat de netbeheerder verantwoordelijk is voor het transport van stroom en gas, maar niet voor de levering ervan. Negatieve uitspraken over andere leveranciers of het verspreiden van onjuiste informatie over de markt, zoals \"de markt is duur omdat X het heeft overgenomen\", zijn niet toegestaan.Er is sprake van misleidende argumentatie als de consument wordt misleid door de medewerker. Dit gebeurt wanneer de medewerker onjuiste informatie verstrekt. Een voorbeeld hiervan is wanneer de medewerker doet alsof hij de huidige tarieven van de consument kan zien en zegt: \"Uw huidige tarief is 22 cent en dit kan verlaagd worden naar 15 cent.\" Dit is misleidend en moet worden afgekeurd.De argumentatie is ook onjuist als de medewerker beweert dat er fouten zijn gemaakt bij de vorige overstap van de consument, waardoor deze een hoge eindafrekening heeft en beter kan overstappen. Als de medewerker suggereert dat de consument is 'opgelicht', wordt dit afgekeurd. Ook als de medewerker doet alsof hij de klant al kent, eerder zaken voor de klant heeft geregeld en de klant aangeeft dat dit niet het geval is, wordt dit als fout beschouwd.Als de medewerker zegt dat hij belt in verband met het huidige contract van de klant bij bijvoorbeeld Energiedirect, wordt dit ook afgekeurd."
+        },{
+            "id": 2,
+            "question": "Benoemt de medewerker de handelsnaam van de adverteerder?",
+            "description": "Aan het begin van het gesprek moet de agent duidelijk de naam van de organisatie noemen van waaruit het gesprek wordt gevoerd. Dit wordt afgekeurd in de volgende gevallen:- Als wordt aangegeven dat de werving uit naam van ENGIE gebeurt terwijl dit niet het geval is.- Als de handelsnaam niet wordt vermeld.- Als wordt gezegd dat de agent namens de netbeheerder belt."
+        },{
+            "id": 3,
+            "question": "Heeft de medewerker benoemd dat het gaat om het aanbieden van een nieuwenergiecontract?",
+            "description": "Aan het begin van het gesprek moet de consument weten dat het gesprek gaat over een aanbod voor de levering van gas en/of stroom. Het is belangrijk dat termen zoals aanbod, voorstel, aanbieding, maatwerk of propositie worden gebruikt. Het is niet voldoende als de agent alleen spreekt over een tariefswijziging, een wijziging in het contract, of alleen het woord korting gebruikt.Verdieping: Als blijkt dat de agent de consument bijvoorbeeld vijf minuten eerder al heeft geïnformeerd over het aanbod, hoeft de agent het woord 'aanbod' niet opnieuw te gebruiken. Het moet echter wel duidelijk zijn dat de consument begrijpt wat het doel van dit gesprek is.De agent moet duidelijk aangeven dat het om een nieuw aanbod gaat. Als de agent zegt dat hij de consument een jaar geleden een aanbod heeft gedaan en nu weer contact opneemt, is dit niet duidelijk genoeg. Het moet expliciet zijn dat er nu een nieuw aanbod wordt gedaan. Anders wordt dit afgekeurd."
+        },{
+            "id": 4,
+            "question": "Beëindigt de medewerker het gesprek als er sprake is van een kwetsbare consument?",
+            "description": "Een kwetsbare consument is iemand die door zijn of haar kwetsbaarheid niet zelfstandig beslissingen kan nemen over het energiecontract. Dit kan bijvoorbeeld iemand zijn die meerdere keren aangeeft het niet te begrijpen, iemand die de taal niet goed spreekt, of iemand die onder bewind staat.Dit criterium is niet relevant als de consument niet kwetsbaar of onervaren is. Het criterium wordt als goed beoordeeld als de agent adequaat rekening houdt met de kwetsbaarheid of onervarenheid van de consument.Voorbeelden van kwetsbare consumenten:Iemand die de Nederlandse taal niet beheerst.Iemand die aangeeft onder bewindvoering te staan.Iemand die ouder is dan 75 jaar.Misbruik van de onkunde of onwetendheid van de consument.Twijfel aan de mentale gezondheid van de consument."
+        },{
+            "id": 5,
+            "question": "Is de verbruiksbepaling c.q. aanbod op maat correct tot stand gekomen?",
+            "description": "De agent stelt de benodigde vragen, verstrekt proactief de benodigde informatie en vraagt door bij onduidelijkheden. Een gepersonaliseerd aanbod betekent dat de agent ervoor moet zorgen dat het aanbod aansluit op de persoonlijke situatie van de consument.Voor een correcte uitvoering van de gepersonaliseerde aanbodprocedure, zijn er maximaal drie stappen, in deze volgorde:De agent vraagt of de consument het verbruik weet.Indien nee, vraagt de agent of de consument het verbruik kan opzoeken, bijvoorbeeld via de jaarnota, de online omgeving of app van de huidige leverancier.Indien nee, maakt de agent gebruik van de schattingstool om het verbruik te schatten op basis van de situatie van de consument. De agent moet hierbij minimaal drie inhoudelijke vragen stellen.De agent moet nagaan of er sprake is van terug levering, waarbij de consument zelf elektriciteit opwekt. Dit doet de agent door te vragen of de consument zelf elektriciteit opwekt, bijvoorbeeld via zonnepanelen.Verdieping:De agent heeft een inspanningsverplichting. Eerst vraagt hij naar het daadwerkelijke verbruik van de consument. Als de consument dit niet weet en ook niet bereid is om dit op een later moment op te zoeken, moet de agent een goede inschatting maken van het verbruik. Dit betekent dat hij vragen stelt om een goed beeld van de situatie te krijgen, zoals: hoeveel mensen wonen er in de woning? Wat voor type woning is het? Hoe is de woning geïsoleerd? Wat voor type meter heeft de consument? Minimaal drie parameters moeten worden gebruikt. Indien dit niet gebeurt, wordt dit afgekeurd.Het register dat het gemiddelde verbruik van de afgelopen jaren bijhoudt (CAR / CER) is niet beschikbaar voor de partners. Als de agent beweert dit register te hebben geraadpleegd, is dit fout. Ook het zeggen dat hij het contract van de consument heeft geraadpleegd, wordt afgekeurd omdat de agent dit niet kan inzien.Als de agent een verbruik noemt zonder uitleg over hoe dit verbruik is vastgesteld, wordt dit afgekeurd.Als de agent aangeeft dat het verbruik van de consument bekend is in zijn bestand of systeem en dit gebruikt, wordt dit afgekeurd.De consument moet duidelijk weten hoe de medewerker het aanbod heeft samengesteld. Dit doet de medewerker door bijvoorbeeld een controlevraag te stellen: \"Mag ik van dit verbruik uitgaan?\" of door samen te vatten: \"Op basis van X kWh en X m³ kom ik uit op … Zal ik hiervan uitgaan?\""
+        },{
+            "id": 6,
+            "question": "Heeft de medewerker het jaarbedrag genoemd?",
+            "description": "De medewerker moet de totale verwachte jaarkosten vermelden. Het is belangrijk dat hij/zij duidelijk maakt dat deze jaarkosten een schatting zijn, bijvoorbeeld door termen te gebruiken zoals verwachtte, geschatte of indicatieve. Dit geeft aan dat de jaarkosten afhankelijk zijn van het daadwerkelijke verbruik van de klant.Let op: Dit mag ook in de samenvatting, zolang het vóór het versturen van het aanbod gebeurt"
+        },{
+            "id": 7,
+            "question": "Heeft de medewerker benoemd dat het jaarbedrag inclusief btw, overheidsheffingenen netbeheerkosten is?",
+            "description": "De totale jaarkosten bestaan uit verschillende onderdelen, inclusief componenten waar de energieleverancier geen controle over heeft. De medewerker moet duidelijk maken waaruit deze jaarkosten zijn opgebouwd om een compleet overzicht te geven van de kostenstructuur.De medewerker moet ten minste aangeven dat het jaarbedrag inclusief BTW, overheidsheffingen en netbeheerkosten is. Andere terminologie is ook acceptabel, zoals vaste en variabele leveringskosten, netbeheerkosten, belastingen en toeslagen.Let op: Dit is ook acceptabel als het in de samenvatting of voicelog wordt genoemd, zolang het maar duidelijk wordt vermeld voordat het aanbod wordt verstuurd."
+        },{
+            "id": 8,
+            "question": "Heeft de medewerker het leveringstarief incl. BTW en overheidsheffingen en hetbedrag van de vaste leveringskosten benoemd?",
+            "description": "De medewerker moet het all-in tarief met alle decimalen vermelden, evenals de maandelijkse vaste kosten. Dit gebeurt meestal in de samenvatting:De tarieven die bij deze [LOOPTIJD] overeenkomst horen zijn (de getallen niet afronden!):Gas: [X] eurocent per m³Elektriciteit (enkel tarief): [X] eurocent per kWh Elektriciteit (normaal tarief): [X] eurocent per kWh Elektriciteit (dal tarief): [X] eurocent per kWh Alle bovengenoemde tarieven en jaarkosten zijn inclusief belastingen, toeslagen en netbeheerkosten. Deze worden gespecificeerd in de overeenkomst die ik u toestuur. De vaste leveringskosten bedragen [X] euro per maand per product, inclusief BTW"
+        },{
+            "id": 9,
+            "question": "Heeft de medewerker duidelijk de startdatum afgesproken met de consument?",
+            "description": "De medewerker dient duidelijk te vermelden wanneer de start van levering plaatsvindt."
+        },{
+            "id": 10,
+            "question": "Heeft de medewerker de consument geïnformeerd over een eventuele boete die de oude leverancier in rekening kan brengen?",
+            "description": "De medewerker dient de consument erop te wijzen dat indien de klant vast zit aan een meerjarig contract de huidige energieleverancier een boete in rekening kan brengen. De medewerker dient in ieder geval de klant erop te wijzen dat de huidige leverancier een boete kan opleggen indien de klant beschikt over een nog lopend meerjarig contract. Indien dit vaste contract is afgesloten voor 1/6/2023  geldt de oude boete zoals onderstaand omschreven in voorbeeld 1. Indien dit vaste contract is afgesloten na 1/6/2023 geldt de nieuwe boete welke is omschreven in voorbeeld 2. Voorbeeld 1: Voor energiecontracten die vóór 1 juni 2023 zijn afgesloten, geldt een vaste opzegboete gebaseerd op de resterende looptijd van het contract: Minder dan 1,5 jaar resterend: €50 1,5 tot 2 jaar resterend: €75 2 tot 2,5 jaar resterend: €100 Meer dan 2,5 jaar resterend: €125 Deze bedragen gelden per contract en moeten verdubbeld worden als de consument zowel een gas- als een stroomcontract heeft. Voorbeeld 2 Boete voor Contracten Gesloten na 1 juni 2023 Voor contracten afgesloten na 1 juni 2023 is de opzegboete gebaseerd op het prijsverschil tussen het oude en nieuwe tarief, vermenigvuldigd met het geschatte resterende verbruik. Dit betekent dat de boete kan variëren: Prijsverschil berekenen: Verschil tussen oude en nieuwe tarieven. Resterend verbruik berekenen: Geschatte hoeveelheid energie die nog verbruikt zou worden. Boete berekenen: Prijsverschil x resterend verbruik. Deze methode kan leiden tot hogere boetes als het prijsverschil groot is en er nog veel verbruik te verwachten is."
+        },{
+            "id": 11,
+            "question": "Heeft de medewerker de duur van de overeenkomst gecommuniceerd?",
+            "description": "De medewerker dient de duur van de overeenkomst duidelijk te vermelden aan de klant. Dit mag ook benoemd worden in de voicelog."
+        },{
+            "id": 12,
+            "question": "Heeft de medewerker de mogelijkheid tot tussentijdse opzegging benoemd en aangegeven dat in dat geval (geen) opzegkosten van toepassing kan zijn?",
+            "description": "Indien het een variabel contract betreft dan is er geen opzegboete van toepassing en kan de klant kosteloos overstappen naar een andere energieleverancier. Indien er sprake is van een vaste looptijd en/of een vast contract met vaste prijzen dan is er een opzegboete van toepassing. De medewerker dient dit in beide gevallen duidelijk aan te geven aan de consument."
+        },{
+            "id": 13,
+            "question": "Heeft de medewerker de consument geïnformeerd over het verlengproces. Overeenkomst met variabele tarieven die maandelijks opzegbaar is?",
+            "description": "Indien er sprake is van een overeenkomst met vaste tarieven dient de medewerker bij de klant aan te geven dat na de vaste looptijd de overeenkomst automatisch wordt verlengd voor onbepaalde tijd, tegen de dan geldende variabele tarieven. Indien er sprake is van een variabele overeenkomst is dit geen verplichting en dient de medewerker de klant te wijzen op het feit dat de overeenkomst variabel is en dat de klant op elk willekeurig moment kan overstappen naar een andere energiemaatschappij."
+        },{
+            "id": 14,
+            "question": "Heeft de medewerker meerdere betaalwijzen correct aangeboden?",
+            "description": "In het gesprek dient de medewerker de klant minimaal 2 mogelijkheden tot betaling aan te bieden. Dit kan per automatische incasso en/of per factuur c.q. acceptgiro gedaan worden."
+        },{
+            "id": 15,
+            "question": "Heeft de medewerker duidelijk gemaakt dat de klant overstapt naar ENGIE?",
+            "description": "De medewerker dient ondubbelzinnig duidelijk te maken dat bij het aanvaarden van de overeenkomst en/of offerte de klant een overstap zal maken naar een andere energieleverancier. Dit criterium is zeer belangrijk en dient scherp nageleefd en gecontroleerd te worden. Indien wordt geconstateerd dat de klant de indruk krijgt dat er niks veranderd en de klant dus geen overstap maakt dient dit punt afgekeurd te worden."
+        },{
+            "id": 16,
+            "question": "Heeft de medewerker duidelijk gemaakt dat de consument door op akkoord te klikken een overeenkomst aangaat?",
+            "description": "De medewerker dient de overeenkomst naar de klant te versturen per e-mail of SMS, dit dient hij vooraf ook duidelijk te vermelden aan de klant. Het moet duidelijk zijn dat het een aanbod betreft en dat indien de klant op akkoord klikt er een overeenkomst tot stand komt."
+        },{
+            "id": 17,
+            "question": "Heeft de medewerker op een juiste wijze de wettelijke bedenktijd van 14 dagen benoemd?",
+            "description": "De medewerker dient de klant te attenderen op het feit dat de klant na het accorderen van de overeenkomst welke per email of sms is verzonden er een wettelijke bedenktijd geldt van 14 kalenderdagen. Deze overeenkomst kan binnen 14 kalenderdagen telefonisch, schriftelijk en/of via een invulformulier op de website van de betreffende energiemaatschappij worden geannuleerd zonder opgave van reden."
+        },{
+            "id": 18,
+            "question": "Heeft de medewerker het Recht van Verzet aangeboden?",
+            "description": "De medewerker dient aan het einde van een positief of negatief gesprek een poging te wagen om het recht van verzet/bezwaar aan te bieden. Uitzondering hierop is wanneer er door de medewerker een concrete terugbelafspraak wordt gemaakt met prospect."
+        }
+    ]
 
     if request.method == 'POST':
         ollamaUrl = 'http://' + ollamaIp + ':11434'
