@@ -94,12 +94,6 @@ class GenerateSchema(Schema):
     options = fields.Dict()
     additionalPrompts = fields.Str(required=False)
 
-class CheckPointResponse(BaseModel):
-    question: str = Field(description="question itself in the prompt for reference")
-    compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
-    score: str = Field(description="score of the check")
-    summary: str = Field(description="summary of the check")
-
 @app.route('/')
 def index():
     # Reset the session variable on page load
@@ -228,6 +222,17 @@ def generate():
         return jsonify(success=False, errors=err.messages), 400
 
     ollamaUrl = 'http://' + ollamaIp + ':11434'
+
+    apiResponse = requests.get(ollamaUrl, timeout=5)
+    if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+        raise Exception('Api is not working')
+
+    class CheckPointResponse(BaseModel):
+        question: str = Field(description="question itself in the prompt for reference")
+        compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
+        score: str = Field(description="score of the check")
+        summary: str = Field(description="summary of the check")
+
     modelName = request_data["model"]
     transcription = request_data['transcription']
     checkPoints = request_data['checkPoints']
@@ -236,12 +241,6 @@ def generate():
     model = Ollama(model=modelName, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
     parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
     outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
-
-    apiResponse = requests.get(ollamaUrl, timeout=5)
-    if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
-        raise Exception('Api is not working')
-
-    #transcriptions = json.dumps(transcriptions)
 
     tasks = {}
     for checkPoint in checkPoints:
@@ -258,16 +257,23 @@ def generate():
 
         tasks["item-" + str(checkPoint['id'])] = question_chain
 
+    class AdditionalInfoResponse(BaseModel):
+        summary: str = Field(description="transcriptions summary")
+        score: int = Field(description="score of the conversation")
+        additionalInfo: str = Field(description="additional info requested as string")
+
+    additionalInfoParser = PydanticOutputParser(pydantic_object=AdditionalInfoResponse)
+    additionalInfoFormat = json.dumps({"summary":"transcriptions summary", "score":"score of the conversation in integer out of 100", "additionalInfo": "additional info requested as string"})
     if (request_data['additionalPrompts']):
-        query = "Conversation transcript:\n{transcription}\nPrompt:\n {additionalPrompts}"
+        query = "Answer the prompt based on the conversation transcript in the below format\n{format_instructions}\nConversation transcript:\n{transcription}\n{format}\nPrompt:\n{additionalPrompts}"
         question_chain = (
             PromptTemplate(
                 template=query,
                 input_variables=["transcription"],
-                partial_variables={"additionalPrompts": request_data['additionalPrompts']},
+                partial_variables={"format": additionalInfoFormat, "format_instructions": additionalInfoParser.get_format_instructions(), "additionalPrompts": request_data['additionalPrompts']},
             )
             | model
-            | StrOutputParser
+            | additionalInfoParser
         )
 
         tasks["item-additional"] = question_chain
@@ -417,7 +423,7 @@ def prompt():
             jsonData[item] = json.loads(output[item].json())
 
         options = request.form.get('options')
-        return render_template('prompt.html', message=json.dumps(jsonData), prompt=prompt, model="llama3", options=options)
+        return render_template('prompt.html', message=json.dumps(jsonData), prompt=transcription, model="llama3", options=options)
 
         chains = []
         outputVariables = []
