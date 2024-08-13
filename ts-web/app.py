@@ -264,19 +264,18 @@ def generate():
 
     additionalInfoParser = PydanticOutputParser(pydantic_object=AdditionalInfoResponse)
     additionalInfoFormat = json.dumps({"summary":"transcriptions summary", "score":"score of the conversation in integer out of 100", "additionalInfo": "additional info requested as string"})
-    if (request_data['additionalPrompts']):
-        query = "Answer the prompt based on the conversation transcript in the below format\n{format_instructions}\nConversation transcript:\n{transcription}\n{format}\nPrompt:\n{additionalPrompts}"
-        question_chain = (
-            PromptTemplate(
-                template=query,
-                input_variables=["transcription"],
-                partial_variables={"format": additionalInfoFormat, "format_instructions": additionalInfoParser.get_format_instructions(), "additionalPrompts": request_data['additionalPrompts']},
-            )
-            | model
-            | additionalInfoParser
+    query = "Answer the prompt based on the conversation transcript in the below format\n{format_instructions}\nConversation transcript:\n{transcription}\n{format}\nPrompt:\n{additionalPrompts}"
+    question_chain = (
+        PromptTemplate(
+            template=query,
+            input_variables=["transcription"],
+            partial_variables={"format": additionalInfoFormat, "format_instructions": additionalInfoParser.get_format_instructions(), "additionalPrompts": request_data['additionalPrompts']},
         )
+        | model
+        | additionalInfoParser
+    )
 
-        tasks["item-additional"] = question_chain
+    tasks["item-additional"] = question_chain
 
     multi_question_chain = RunnableParallel(tasks)
 
