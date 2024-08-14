@@ -3,6 +3,8 @@ import os
 import shutil
 import requests
 import json
+import chromadb
+import ollama
 from flask import Flask, render_template, request, jsonify, session, send_file
 from werkzeug.utils import secure_filename
 from flask_http_middleware import MiddlewareManager
@@ -121,7 +123,8 @@ def upload_audio():
     except ValidationError as err:
         return jsonify(success=False, errors=err.messages), 400
 
-    headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+#     headers = {'Authorization': "Bearer " + os.environ.get('SALESDOCK_AUTHORIZATION')}
+    headers = {}
 
     folderPath = os.path.join(app.config['UPLOAD_FOLDER'], 'diarize', str(request_data['rowId']))
     if (os.path.exists(folderPath)):
@@ -129,7 +132,8 @@ def upload_audio():
 
     os.mkdir(folderPath)
     for audio in request_data['audios']:
-        audioUrl = salesdockUrl + '/' + audio['url']
+#         audioUrl = salesdockUrl + '/' + audio['url']
+        audioUrl = audio['url']
         response = requests.get(audioUrl, headers=headers, verify=False)
         if response.status_code == requests.codes.ok:
             contentType = response.headers.get('content-type')
@@ -173,45 +177,6 @@ def summary(folder):
 
     return jsonify(success=True, audios=audios)
 
-# @app.route('/generate', methods=['POST'])
-# def generate():
-#     request_data = request.json
-#     schema = GenerateSchema()
-#     try:
-#         result = schema.load(request_data)
-#     except ValidationError as err:
-#         return jsonify(success=False, errors=err.messages), 400
-#
-#     payload = {
-#         "model": request_data["model"],
-#         "prompt": request_data['prompt'],
-#         "stream": False,
-#         "keep_alive": "5s",
-#         "format": "json",
-#         "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
-#         "options" : request_data['options']
-#     }
-#
-#     apiResponse = requests.get(ollamaUrl, timeout=5)
-#     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
-#         raise Exception('Api is not working')
-#
-#     requestUrl = ollamaUrl + '/api/generate'
-#     response = None
-#     try:
-#         response = requests.post(requestUrl, json=payload)
-#     except Exception as e:
-#         raise Exception("Error sending request to API endpoint: {}".format(e))
-#
-#     json_data = response.json()
-#
-#     if response is not None and response.status_code == 200:
-#         json_data = response.json()
-#         return jsonify(success=True, data=json_data), 200
-#
-#     return jsonify(success=False, message=response.error), 200
-
-
 @app.route('/generate', methods=['POST'])
 def generate():
     request_data = request.json
@@ -234,6 +199,7 @@ def generate():
         summary: str = Field(description="summary of the check")
 
     modelName = request_data["model"]
+
     transcription = request_data['transcription']
     checkPoints = request_data['checkPoints']
     additionalPrompts = request_data['additionalPrompts']
@@ -288,6 +254,124 @@ def generate():
         jsonData[item] = json.loads(output[item].json())
 
     return jsonify(success=True, data=jsonData), 200
+
+
+@app.route('/generate2', methods=['POST'])
+def generate2():
+    request_data = request.json
+    schema = GenerateSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(success=False, errors=err.messages), 400
+
+    ollamaUrl = 'http://' + ollamaIp + ':11434'
+
+    apiResponse = requests.get(ollamaUrl, timeout=5)
+    if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+        raise Exception('Api is not working')
+
+
+    client = chromadb.Client()
+    collection = client.create_collection(name="transcription")
+
+    transcription = request_data['transcription']
+    transcription = transcription.splitlines()
+
+    for i, d in enumerate(transcription):
+        if (d == ''):
+            continue
+        response = ollama.embeddings(model="mxbai-embed-large", prompt=d)
+        embedding = response["embedding"]
+        collection.add(
+            ids=[str(i)],
+            embeddings=[embedding],
+            documents=[d]
+        )
+
+    class CheckPointResponse(BaseModel):
+        question: str = Field(description="question itself in the prompt for reference")
+        compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
+        score: str = Field(description="score of the check")
+        summary: str = Field(description="summary of the check")
+
+    modelName = request_data["model"]
+    checkPoints = request_data['checkPoints']
+    systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
+    model = Ollama(model=modelName, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
+    parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
+    outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
+
+    tasks = {}
+    for checkPoint in checkPoints:
+        prompt = "Check the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: " +  checkPoint['question'] + "\nQuestion description: \n" +  checkPoint['description']
+        response = ollama.embeddings(
+            prompt=prompt,
+            model="mxbai-embed-large"
+        )
+        results = collection.query(
+            query_embeddings=[response["embedding"]],
+            n_results=1
+        )
+        data = results['documents'][0][0]
+
+        question_chain = (
+            PromptTemplate(
+                template="Answer the check point based on the conversation transcript in the below format.\n{format_instructions}\nFormat:\n{format}\nData: {data}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: {question}\nQuestion description: \n{questionDescription}",
+                partial_variables={"data": data, "format": outputFormat, "format_instructions": parser.get_format_instructions(), "question": checkPoint['question'], "questionDescription": checkPoint['description']},
+            )
+            | model
+            | parser
+        )
+        tasks["item-" + str(checkPoint['id'])] = question_chain
+
+    multi_question_chain = RunnableParallel(tasks)
+
+    output = multi_question_chain.invoke({})
+
+    jsonData = {}
+    for item in output:
+        jsonData[item] = json.loads(output[item].json())
+
+    return jsonify(success=True, data=jsonData), 200
+
+@app.route('/generate3', methods=['POST'])
+def generate3():
+    request_data = request.json
+    schema = GenerateSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(success=False, errors=err.messages), 400
+
+    payload = {
+        "model": request_data["model"],
+        "prompt": request_data['prompt'],
+        "stream": False,
+        "keep_alive": "5s",
+        "format": "json",
+        "system": 'You are sale analyst. You check sale conversions and give scores and summary of the conversation in json format',
+        "options" : request_data['options']
+    }
+
+    apiResponse = requests.get(ollamaUrl, timeout=5)
+    if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
+        raise Exception('Api is not working')
+
+    requestUrl = ollamaUrl + '/api/generate'
+    response = None
+    try:
+        response = requests.post(requestUrl, json=payload)
+    except Exception as e:
+        raise Exception("Error sending request to API endpoint: {}".format(e))
+
+    json_data = response.json()
+
+    if response is not None and response.status_code == 200:
+        json_data = response.json()
+        return jsonify(success=True, data=json_data), 200
+
+    return jsonify(success=False, message=response.error), 200
 
 @app.route('/delete/<path:folder>', methods=['DELETE'])
 def delete_folder(folder):
