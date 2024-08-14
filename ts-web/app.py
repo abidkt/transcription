@@ -3,8 +3,9 @@ import os
 import shutil
 import requests
 import json
-import chromadb
+# import chromadb
 import ollama
+import time
 from flask import Flask, render_template, request, jsonify, session, send_file
 from werkzeug.utils import secure_filename
 from flask_http_middleware import MiddlewareManager
@@ -95,6 +96,17 @@ class GenerateSchema(Schema):
     model = fields.Str(required=True)
     options = fields.Dict()
     additionalPrompts = fields.Str(required=False)
+
+@app.before_request
+def log_route_start():
+    g.start_time = time.time()
+
+@app.after_request
+def log_route_end(response):
+    route = request.endpoint
+    print(f"{route} ended after {time.time() - g.pop('start_time', None)}")
+    return response
+
 
 @app.route('/')
 def index():
