@@ -5,8 +5,7 @@ import requests
 import json
 # import chromadb
 import ollama
-import time
-from flask import Flask, render_template, request, jsonify, session, send_file
+from flask import Flask, render_template, request, jsonify, session, send_file, g
 from werkzeug.utils import secure_filename
 from flask_http_middleware import MiddlewareManager
 from middleware import AccessMiddleware, MetricsMiddleware, SecureRoutersMiddleware
@@ -15,10 +14,10 @@ from datetime import datetime
 from langchain_core.prompts import PromptTemplate
 from langchain_community.llms import Ollama
 from typing import List
-from langchain_core.output_parsers import JsonOutputParser, StrOutputParser, PydanticOutputParser
-from langchain_core.pydantic_v1 import BaseModel, Field, validator, conlist
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.chains import SequentialChain, LLMChain
-from langchain_core.runnables import RunnableSequence, RunnableParallel, RunnablePassthrough
+from langchain_core.runnables import RunnableSequence, RunnableParallel
 
 app = Flask(__name__)
 
@@ -98,15 +97,8 @@ class GenerateSchema(Schema):
     additionalPrompts = fields.Str(required=False)
 
 @app.before_request
-def log_route_start():
-    g.start_time = time.time()
-
-@app.after_request
-def log_route_end(response):
-    route = request.endpoint
-    print(f"{route} ended after {time.time() - g.pop('start_time', None)}")
-    return response
-
+def before_request():
+    g.start_time = datetime.now()
 
 @app.route('/')
 def index():
@@ -265,7 +257,8 @@ def generate():
     for item in output:
         jsonData[item] = json.loads(output[item].json())
 
-    return jsonify(success=True, data=jsonData), 200
+    elapsedTime = datetime.now() - g.start_time
+    return jsonify(success=True, data=jsonData, time=elapsedTime.total_seconds()), 200
 
 
 @app.route('/generate2', methods=['POST'])

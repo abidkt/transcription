@@ -49,10 +49,10 @@ for sub_dir in "${sub_dirs[@]}"; do
                     run_time=$((diarize_end_time - diarize_start_time))
                 elif [ "$sub_dir" == "transcribe" ]; then
                     echo "--- transcribing $audio_file..." >> /proc/1/fd/1
-                            whisper_start_time=$(date +%s)
+                    whisper_start_time=$(date +%s)
                     whisperx --batch_size 12 --model $TRANSCRIPTION_MODEL --output_dir "$new_dir" > "$new_dir/$base_name.txt" "$audio_file"
-                            whisper_end_time=$(date +%s)
-                            run_time=$((whisper_end_time - whisper_start_time))
+                    whisper_end_time=$(date +%s)
+                    run_time=$((whisper_end_time - whisper_start_time))
                 fi
 
                 # Move all files with the same base_name to the new subdirectory
@@ -69,7 +69,6 @@ for sub_dir in "${sub_dirs[@]}"; do
                 # Drop messages to the console
                 echo "--- done processing $audio_file - output placed in $new_dir" >> /proc/1/fd/1
                 if [ -f "$new_dir/$base_name.txt" ]; then
-                    echo "transcription: $(cat "$new_dir/$base_name.txt") " >> /proc/1/fd/1;
                     echo "Runtime for processing $audio_file = $run_time" >> /proc/1/fd/1;
                     echo "------------------------------------";
                 fi
