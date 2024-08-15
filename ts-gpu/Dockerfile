@@ -32,7 +32,7 @@ RUN pip install numpy
 RUN git clone --depth 1 https://github.com/abidkt/whisper-diarization.git
 
 # Install whisper-diarization requirements
-WORKDIR /whisper-diarization
+WORKDIR /ts-web
 RUN pip install -r requirements.txt
 
 # Copy the required files

@@ -4,3 +4,8 @@ ts-gpu/transcriptionstream
 .idea
 ts-web/__pycache__
 .env
+__pycache__/
+*.srt
+*.txt
+*.wav
+*.mp3
