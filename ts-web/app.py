@@ -5,7 +5,7 @@ import requests
 import json
 # import chromadb
 import ollama
-from flask import Flask, render_template, request, jsonify, session, send_file, g
+from flask import Flask, render_template, request, jsonify, send_file, g
 from werkzeug.utils import secure_filename
 from flask_http_middleware import MiddlewareManager
 from middleware import AccessMiddleware, MetricsMiddleware, SecureRoutersMiddleware
@@ -102,21 +102,19 @@ def before_request():
 
 @app.route('/')
 def index():
-    # Reset the session variable on page load
-    session['alerted_folders'] = []
-    session['session_start_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
-    folder_paths = [os.path.join(TRANSCRIBED_FOLDER, f) for f in os.listdir(TRANSCRIBED_FOLDER) if os.path.isdir(os.path.join(TRANSCRIBED_FOLDER, f))]
-    
+    folderPaths = [os.path.join(TRANSCRIBED_FOLDER, f) for f in os.listdir(TRANSCRIBED_FOLDER) if os.path.isdir(os.path.join(TRANSCRIBED_FOLDER, f))]
+
     # Filter folders to only include those containing an .srt file
-    valid_folders = []
-    for folder in folder_paths:
-        files = os.listdir(folder)
-        if any(file.endswith('.srt') for file in files):
-            valid_folders.append(os.path.basename(folder))
+    validFolders = []
+    for folder in folderPaths:
+        subFolders = [os.path.join(folder, f) for f in os.listdir(folder) if os.path.isdir(os.path.join(folder, f))]
+        for subFolder in subFolders:
+            files = os.listdir(subFolder)
+            if any(file.endswith('.srt') for file in files):
+                validFolders.append(os.path.basename(folder))
     
-    sorted_folders = sorted(valid_folders, key=lambda s: s.lower())  # Sorting by name in ascending order, case-insensitive
-    return jsonify({"transcriptions": sorted_folders})
+    sortedFolders = sorted(validFolders, key=lambda s: s.lower())  # Sorting by name in ascending order, case-insensitive
+    return jsonify({"transcriptions": sortedFolders})
 
 @app.route('/upload', methods=['POST'])
 def upload_audio():
