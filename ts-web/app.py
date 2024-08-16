@@ -108,10 +108,15 @@ def index():
     validFolders = []
     for folder in folderPaths:
         subFolders = [os.path.join(folder, f) for f in os.listdir(folder) if os.path.isdir(os.path.join(folder, f))]
+        showFolder = True
         for subFolder in subFolders:
             files = os.listdir(subFolder)
-            if any(file.endswith('.srt') for file in files):
-                validFolders.append(os.path.basename(folder))
+            if not any(file.endswith('.srt') for file in files):
+                showFolder = False
+                continue
+
+        if (showFolder):
+            validFolders.append(os.path.basename(folder))
     
     sortedFolders = sorted(validFolders, key=lambda s: s.lower())  # Sorting by name in ascending order, case-insensitive
     return jsonify({"transcriptions": sortedFolders})

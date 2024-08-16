@@ -27,6 +27,8 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+print(args)
+
 if args.destination != '' and args.audio != '' and args.time != '':
     dest = args.destination
     audio = args.audio
