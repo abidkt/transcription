@@ -44,6 +44,7 @@ COPY ts-summarize.py /root/scripts/
 COPY auto-summary.py /root/scripts/
 COPY update-data.py /root/scripts/
 COPY notify.py /root/scripts/
+COPY helpers.py /root/scripts/
 
 # Create a new user and setup the environment
 RUN useradd -m -p $(openssl passwd -1 nomoresaastax) transcriptionstream \
