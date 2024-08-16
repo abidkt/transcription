@@ -29,7 +29,7 @@ RUN pip install typing_extensions
 RUN pip install numpy
 
 # Install whisper-diarization requirements
-WORKDIR /ts-web
+WORKDIR /ts-gpu
 RUN pip install -r requirements.txt
 
 # Copy the required files
