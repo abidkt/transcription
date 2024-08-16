@@ -390,3 +390,19 @@ def process_language_arg(language: str, model_name: str):
             )
         language = "en"
     return language
+
+def update_json_data(file_path, values, encoding="utf-8"):
+    try:
+        with open(file_path, 'r', encoding=encoding) as f:
+            data = json.load(f)
+
+        for key, value in values.items():
+            data[key] = value
+
+        with open(file_path, 'w') as f:
+            json.dump(data, f)
+
+    except FileNotFoundError:
+        print(f"File '{file_path}' not found.")
+    except json.JSONDecodeError:
+        print(f"Error decoding JSON in '{file_path}'.")

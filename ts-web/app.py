@@ -134,7 +134,6 @@ def upload_audio():
 
     os.mkdir(folderPath)
     for audio in request_data['audios']:
-#         audioUrl = salesdockUrl + '/' + audio['url']
         audioUrl = audio['url']
         response = requests.get(audioUrl, headers=headers, verify=False)
         if response.status_code == requests.codes.ok:

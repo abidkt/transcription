@@ -66,6 +66,8 @@ for sub_dir in "${sub_dirs[@]}"; do
                 # Change the owner of the files to the user transcriptionstream
                 chown -R transcriptionstream:transcriptionstream "$new_dir"
 
+                python3 /root/scripts/update-data.py --destination "$new_dir/$base_name.json" --audio $audio_file --time $run_time
+
                 # Drop messages to the console
                 echo "--- done processing $audio_file - output placed in $new_dir" >> /proc/1/fd/1
                 if [ -f "$new_dir/$base_name.txt" ]; then

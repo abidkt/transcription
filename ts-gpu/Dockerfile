@@ -28,9 +28,6 @@ RUN apt-get update && apt-get install -y \
 RUN pip install typing_extensions
 RUN pip install numpy
 
-# Clone only the necessary branch or commit of whisper-diarization to reduce size
-RUN git clone --depth 1 https://github.com/abidkt/whisper-diarization.git
-
 # Install whisper-diarization requirements
 WORKDIR /ts-web
 RUN pip install -r requirements.txt
@@ -41,6 +38,7 @@ COPY transcribe.sh /root/scripts/transcribe.sh
 COPY test.wav /home/transcriptionstream/
 COPY ts-summarize.py /root/scripts/
 COPY auto-summary.py /root/scripts/
+COPY update-data.py.py /root/scripts/
 COPY notify.py /root/scripts/
 
 # Create a new user and setup the environment
@@ -56,7 +54,6 @@ RUN useradd -m -p $(openssl passwd -1 nomoresaastax) transcriptionstream \
 # Run the necessary scripts so we have our transcription models IN the image. Adds to build time for download.
 RUN python3 diarize.py -a /home/transcriptionstream/test.wav
 RUN whisperx --model large-v3 --language en /home/transcriptionstream/test.wav --compute_type int8
-#RUN python3 -m pytorch_lightning.utilities.upgrade_checkpoint ../root/.cache/torch/whisperx-vad-segmentation.bin
 
 # Expose the SSH port
 EXPOSE 22
