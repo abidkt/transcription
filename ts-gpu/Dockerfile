@@ -30,6 +30,10 @@ RUN pip install numpy
 
 # Install whisper-diarization requirements
 WORKDIR /ts-gpu
+
+# Copy the content of the local src directory to the working directory
+COPY . .
+
 RUN pip install -r requirements.txt
 
 # Copy the required files
