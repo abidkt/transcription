@@ -38,7 +38,7 @@ COPY transcribe.sh /root/scripts/transcribe.sh
 COPY test.wav /home/transcriptionstream/
 COPY ts-summarize.py /root/scripts/
 COPY auto-summary.py /root/scripts/
-COPY update-data.py.py /root/scripts/
+COPY update-data.py /root/scripts/
 COPY notify.py /root/scripts/
 
 # Create a new user and setup the environment
