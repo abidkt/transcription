@@ -261,7 +261,7 @@ def generate():
 
     elapsedTime = datetime.now() - g.start_time
 
-    responseData = {'checks': jsonData, time=elapsedTime.total_seconds()}
+    responseData = {'checks': jsonData, 'time': elapsedTime.total_seconds()}
     return jsonify(success=True, data=responseData), 200
 
 
