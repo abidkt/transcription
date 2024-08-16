@@ -1,0 +1,8 @@
+wget
+huggingface_hub==0.23.5
+nemo_toolkit[asr]==1.21.0
+git+https://github.com/m-bain/whisperX.git@78dcfaab51005aa703ee21375f81ed31bc248560
+git+https://github.com/facebookresearch/demucs#egg=demucs
+deepmultilingualpunctuation
+pymediainfo==6.1.0
+audioread==3.0.1

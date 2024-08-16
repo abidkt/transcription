@@ -5,7 +5,3 @@ ts-gpu/transcriptionstream
 ts-web/__pycache__
 .env
 __pycache__/
-*.srt
-*.txt
-*.wav
-*.mp3
