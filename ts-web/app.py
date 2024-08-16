@@ -94,7 +94,7 @@ class GenerateSchema(Schema):
     checkPoints = fields.Nested(CheckPointSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     model = fields.Str(required=True)
     options = fields.Dict()
-    additionalPrompts = fields.Str(required=False)
+    additionalPrompts = fields.Str(required=False, default=None)
 
 @app.before_request
 def before_request():
@@ -260,7 +260,9 @@ def generate():
         jsonData[item] = json.loads(output[item].json())
 
     elapsedTime = datetime.now() - g.start_time
-    return jsonify(success=True, data=jsonData, time=elapsedTime.total_seconds()), 200
+
+    responseData = {'checks': jsonData, time=elapsedTime.total_seconds()}
+    return jsonify(success=True, data=responseData), 200
 
 
 @app.route('/generate2', methods=['POST'])
