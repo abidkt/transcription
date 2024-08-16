@@ -94,7 +94,7 @@ class GenerateSchema(Schema):
     checkPoints = fields.Nested(CheckPointSchema, required=True, validate=validate.Length(min=1, error='Field may not be an empty list'), many=True)
     model = fields.Str(required=True)
     options = fields.Dict()
-    additionalPrompts = fields.Str(required=False, default=None)
+    additionalPrompts = fields.Str()
 
 @app.before_request
 def before_request():
