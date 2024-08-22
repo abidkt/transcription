@@ -3,7 +3,7 @@ Werkzeug==2.3.7
 flask-http-middleware==0.4.2
 requests==2.32.3
 marshmallow==3.21.3
-ollama==0.2.1
+ollama
 langchain
 langchain-community
 langchain_ollama==0.1.1
