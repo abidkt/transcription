@@ -3,8 +3,9 @@ import os
 import shutil
 import requests
 import json
-# import chromadb
+import chromadb
 import ollama
+import uuid
 from flask import Flask, render_template, request, jsonify, send_file, g
 from werkzeug.utils import secure_filename
 from flask_http_middleware import MiddlewareManager
@@ -18,6 +19,8 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain.chains import SequentialChain, LLMChain
 from langchain_core.runnables import RunnableSequence, RunnableParallel
+from langchain_ollama import OllamaEmbeddings
+from langchain_core.vectorstores import InMemoryVectorStore
 
 app = Flask(__name__)
 
@@ -95,6 +98,12 @@ class GenerateSchema(Schema):
     model = fields.Str(required=True)
     options = fields.Dict()
     additionalPrompts = fields.Str()
+
+class CheckPointResponse(BaseModel):
+    question: str = Field(description="question itself in the prompt for reference")
+    compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
+    score: str = Field(description="score of the check")
+    summary: str = Field(description="summary of the check")
 
 @app.before_request
 def before_request():
@@ -198,12 +207,6 @@ def generate():
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
         raise Exception('Api is not working')
 
-    class CheckPointResponse(BaseModel):
-        question: str = Field(description="question itself in the prompt for reference")
-        compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
-        score: str = Field(description="score of the check")
-        summary: str = Field(description="summary of the check")
-
     modelName = request_data["model"]
 
     transcription = request_data['transcription']
@@ -212,11 +215,11 @@ def generate():
     systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
     model = Ollama(model=modelName, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, num_ctx=2048, system=systemPrompt, format="json")
     parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
-    outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
+    outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point in language same as in transcription"})
 
     tasks = {}
     for checkPoint in checkPoints:
-        query = "Answer the check point based on the conversation transcript in the below format.\n{format_instructions}\nConversation transcript:\n{transcription}\nFormat:\n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: {question}\nQuestion description: \n{questionDescription}"
+        query = "Answer the check point based on the conversation transcript in the below format. Use the same language as transcription for answer\n{format_instructions}\nConversation transcript:\n{transcription}\nFormat:\n{format}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: {question}\nQuestion description: \n{questionDescription}"
         question_chain = (
             PromptTemplate(
                 template=query,
@@ -236,7 +239,7 @@ def generate():
 
     additionalInfoParser = PydanticOutputParser(pydantic_object=AdditionalInfoResponse)
     additionalInfoFormat = json.dumps({"summary":"transcriptions summary", "score":"score of the conversation in integer out of 100", "additionalInfo": "additional info requested as string"})
-    query = "Answer the prompt based on the conversation transcript in the below format\n{format_instructions}\nConversation transcript:\n{transcription}\n{format}\nPrompt:\n{additionalPrompts}"
+    query = "Answer the prompt based on the conversation transcript in the below format. Use the same language as transcription for answer\n{format_instructions}\nConversation transcript:\n{transcription}\n{format}\nPrompt:\n{additionalPrompts}"
     question_chain = (
         PromptTemplate(
             template=query,
@@ -280,9 +283,9 @@ def generate2():
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
         raise Exception('Api is not working')
 
-
     client = chromadb.Client()
-    collection = client.create_collection(name="transcription")
+    collectionName = str(uuid.uuid4())
+    collection = client.get_or_create_collection(name=collectionName)
 
     transcription = request_data['transcription']
     transcription = transcription.splitlines()
@@ -297,12 +300,6 @@ def generate2():
             embeddings=[embedding],
             documents=[d]
         )
-
-    class CheckPointResponse(BaseModel):
-        question: str = Field(description="question itself in the prompt for reference")
-        compliant: str = Field(description="the check point is compliant or not, yes, if compliant. no, if not compliant, na, if not mentioned in transcript")
-        score: str = Field(description="score of the check")
-        summary: str = Field(description="summary of the check")
 
     modelName = request_data["model"]
     checkPoints = request_data['checkPoints']
@@ -319,8 +316,7 @@ def generate2():
             model="mxbai-embed-large"
         )
         results = collection.query(
-            query_embeddings=[response["embedding"]],
-            n_results=1
+            query_embeddings=[response["embedding"]]
         )
         data = results['documents'][0][0]
 
@@ -342,6 +338,7 @@ def generate2():
     for item in output:
         jsonData[item] = json.loads(output[item].json())
 
+    client.delete_collection(collectionName)
     return jsonify(success=True, data=jsonData), 200
 
 @app.route('/generate3', methods=['POST'])
@@ -381,6 +378,69 @@ def generate3():
         return jsonify(success=True, data=json_data), 200
 
     return jsonify(success=False, message=response.error), 200
+
+@app.route('/generate4', methods=['POST'])
+def generate4():
+    request_data = request.json
+    schema = GenerateSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(success=False, errors=err.messages), 400
+
+    embeddings = OllamaEmbeddings(
+        model="llama3",
+    )
+
+    transcription = request_data['transcription']
+    transcription = transcription.splitlines()
+
+    vectorstore = InMemoryVectorStore.from_texts(
+       transcription,
+       embedding=embeddings,
+    )
+
+    ollamaUrl = 'http://' + ollamaIp + ':11434'
+    modelName = request_data["model"]
+    checkPoints = request_data['checkPoints']
+    systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
+    model = Ollama(model=modelName, base_url=ollamaUrl, temperature=0, verbose=True, top_k=0, system=systemPrompt, format="json")
+    parser = PydanticOutputParser(pydantic_object=CheckPointResponse)
+    outputFormat = json.dumps({"id":"check point number","question":"check point heading in the prompt","compliant":"check is compliant or not","score":"score for the check point if available, otherwise NA","summary": "brief summary of the check point"})
+
+    tasks = {}
+    for checkPoint in checkPoints:
+        prompt = "Question: " +  checkPoint['question'] + "\nQuestion description: \n" +  checkPoint['description']
+
+        # Use the vectorstore as a retriever
+        retriever = vectorstore.as_retriever()
+        # Retrieve the most similar text
+        retrieved_documents = retriever.invoke(prompt)
+
+        text = retrieved_documents[0].page_content
+
+        question_chain = (
+            PromptTemplate(
+                template="Answer the check point based on a part of conversation transcript in the below format.\n{format_instructions}\nFormat:\n{format}\nTranscription: {transcription}\nPrompt:\nCheck the agent discussed the below check point and assign a score of 0-5 for the checkpoint based on how well the agent performed in that area. Briefly summarise the agent's strengths and weaknesses in the checkpoint.\nQuestion: {question}\nQuestion description: \n{questionDescription}",
+                partial_variables={"transcription": text, "format": outputFormat, "format_instructions": parser.get_format_instructions(), "question": checkPoint['question'], "questionDescription": checkPoint['description']},
+            )
+            | model
+            | parser
+        )
+        tasks["item-" + str(checkPoint['id'])] = question_chain
+
+    multi_question_chain = RunnableParallel(tasks)
+
+    output = multi_question_chain.invoke({})
+
+    jsonData = {}
+    for item in output:
+        jsonData[item] = json.loads(output[item].json())
+
+    elapsedTime = datetime.now() - g.start_time
+
+    responseData = {'checks': jsonData, 'time': elapsedTime.total_seconds()}
+    return jsonify(success=True, data=responseData), 200
 
 @app.route('/delete/<path:folder>', methods=['DELETE'])
 def delete_folder(folder):
