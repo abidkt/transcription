@@ -3,7 +3,7 @@ import os
 import shutil
 import requests
 import json
-import chromadb
+# import chromadb
 import ollama
 import uuid
 from flask import Flask, render_template, request, jsonify, send_file, g
