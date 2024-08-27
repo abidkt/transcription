@@ -40,7 +40,7 @@ def scan_and_summarize(base_directory):
                 print(f"Creating summary.json for {path}")
 
                 # Call the external script with the directory path and the URL
-                command = f'python3 /root/scripts/ts-summarize.py {path} http://{ollama_endpoint_ip}:11434'
+                command = f'python3 /root/scripts/ts-summarize.py {path} http://{ollama_endpoint_ip}:11435'
                 subprocess.run(command, shell=True)
 
                 # Change the ownership of the new summary.json file

@@ -201,7 +201,7 @@ def generate():
     except ValidationError as err:
         return jsonify(success=False, errors=err.messages), 400
 
-    ollamaUrl = 'http://' + ollamaIp + ':11434'
+    ollamaUrl = 'http://' + ollamaIp + ':11435'
 
     apiResponse = requests.get(ollamaUrl, timeout=5)
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
@@ -277,7 +277,7 @@ def generate2():
     except ValidationError as err:
         return jsonify(success=False, errors=err.messages), 400
 
-    ollamaUrl = 'http://' + ollamaIp + ':11434'
+    ollamaUrl = 'http://' + ollamaIp + ':11435'
 
     apiResponse = requests.get(ollamaUrl, timeout=5)
     if apiResponse.status_code != 200 or apiResponse.text != "Ollama is running":
@@ -400,7 +400,7 @@ def generate4():
        embedding=embeddings,
     )
 
-    ollamaUrl = 'http://' + ollamaIp + ':11434'
+    ollamaUrl = 'http://' + ollamaIp + ':11435'
     modelName = request_data["model"]
     checkPoints = request_data['checkPoints']
     systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
@@ -540,7 +540,7 @@ def prompt():
     ]
 
     if request.method == 'POST':
-        ollamaUrl = 'http://' + ollamaIp + ':11434'
+        ollamaUrl = 'http://' + ollamaIp + ':11435'
         modelName = "llama3"
         transcription = request.form.get('prompt')
         systemPrompt = 'You are sale analyst. You check sale conversions and analyze. Returns answers in the given JSON format'
@@ -647,7 +647,7 @@ def prompt():
 #         for chunk in stream:
 #           print(chunk['response'], end='', flush=True)
 
-        ollamaUrl = 'http://' + ollamaIp + ':11434'
+        ollamaUrl = 'http://' + ollamaIp + ':11435'
         payload = {
             "model": model,
             "prompt": prompt,

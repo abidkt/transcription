@@ -68,7 +68,7 @@ services:
       - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS}
     container_name: ts-gpt
     ports:
-      - "11434:11434"
+      - "11435:11434"
     volumes:
       - transcriptionstream:/root/.ollama
     networks:
