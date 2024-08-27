@@ -23,6 +23,8 @@ services:
       - SALESDOCK_AUTHORIZATION=${SALESDOCK_AUTHORIZATION}
       - SALESDOCK_URL=${SALESDOCK_URL}
     shm_size: 6gb
+    ports:
+      - "22222:22"
     volumes:
       - transcriptionstream:/transcriptionstream
       - transcriptionstream:/home/transcriptionstream
@@ -48,6 +50,8 @@ services:
       - TS_WEB_TOKEN=${TS_WEB_TOKEN}
       - SALESDOCK_AUTHORIZATION=${SALESDOCK_AUTHORIZATION}
       - SALESDOCK_URL=${SALESDOCK_URL}
+    ports:
+      - "5006:5000"
     volumes:
       - transcriptionstream:/transcriptionstream
     networks:
@@ -62,6 +66,8 @@ services:
     environment:
       - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL}
       - OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS}
+    ports:
+      - "11434:11434"
     volumes:
       - transcriptionstream:/root/.ollama
     networks:
